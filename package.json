@@ -1,0 +1,26 @@
+{
+  "name": "winvel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "T-shirt e-commerce platform - React + Express + MySQL",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build -w frontend",
+    "db:init": "npm run db:init -w backend",
+    "docker:up": "docker compose up -d --build",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "multer": "^2.2.0"
+  }
+}

@@ -1,0 +1,90 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: winvel-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: winvel_db
+      MYSQL_USER: winvel_user
+      MYSQL_PASSWORD: winvel_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+      - ./database/settings-seed.sql:/docker-entrypoint-initdb.d/03-settings-seed.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+  db-init:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: winvel-db-init
+    command: node src/scripts/init-db.js
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: winvel_user
+      DB_PASSWORD: winvel_pass
+      DB_NAME: winvel_db
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: winvel-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: winvel_user
+      DB_PASSWORD: winvel_pass
+      DB_NAME: winvel_db
+      JWT_SECRET: winvel-docker-jwt-secret-change-me
+      JWT_EXPIRES_IN: 7d
+    volumes:
+      - uploads_data:/app/backend/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:5000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: winvel-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+  uploads_data:
