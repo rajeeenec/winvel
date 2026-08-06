@@ -112,10 +112,25 @@ img {
   text-transform: uppercase;
 }
 
-.badge-success { background: var(--color-success-bg); color: var(--color-success-text); }
-.badge-warning { background: var(--color-warning-bg); color: var(--color-warning-text); }
-.badge-danger { background: var(--color-danger-bg); color: var(--color-danger-text); }
-.badge-info { background: var(--color-info-bg); color: var(--color-info-text); }
+.badge-success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.badge-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.badge-info {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
 
 .loading-screen {
   display: flex;
@@ -176,12 +191,23 @@ img {
   gap: 1.5rem;
 }
 
-.grid-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
 
 @media (max-width: 768px) {
-  .grid-2, .grid-3, .grid-4 {
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
     grid-template-columns: 1fr;
   }
 }

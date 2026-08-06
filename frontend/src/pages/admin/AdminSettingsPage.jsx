@@ -10,6 +10,8 @@ import {
   detectActivePreset,
 } from '../../config/themePresets';
 import './AdminSettingsPage.css';
+import ImageCropperModal from '../../components/ImageCropperModal';
+
 
 export default function AdminSettingsPage() {
   const { updateSettings, uploadLogo } = useSettings();
@@ -21,6 +23,8 @@ export default function AdminSettingsPage() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState('theme');
+  const [cropImageSrc, setCropImageSrc] = useState(null);
+  const [showCropper, setShowCropper] = useState(false);
 
   useEffect(() => {
     api.get('/settings/admin')
@@ -83,14 +87,26 @@ export default function AdminSettingsPage() {
     }
   };
 
-  const handleLogoUpload = async (e) => {
+  const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropImageSrc(reader.result);
+      setShowCropper(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleCroppedLogo = async (croppedFile) => {
+    setShowCropper(false);
+    setCropImageSrc(null);
     setUploadingLogo(true);
     setMessage('');
     try {
-      const data = await uploadLogo(file);
+      const data = await uploadLogo(croppedFile);
       setFormValues((prev) => ({
         ...prev,
         'store.logo_url': data.logoUrl,
@@ -100,7 +116,6 @@ export default function AdminSettingsPage() {
       setMessage(err.message);
     } finally {
       setUploadingLogo(false);
-      e.target.value = '';
     }
   };
 
@@ -255,6 +270,17 @@ export default function AdminSettingsPage() {
           {saving ? 'Saving...' : 'Save Settings'}
         </button>
       </form>
+
+      {showCropper && (
+        <ImageCropperModal
+          src={cropImageSrc}
+          onClose={() => {
+            setShowCropper(false);
+            setCropImageSrc(null);
+          }}
+          onCrop={handleCroppedLogo}
+        />
+      )}
     </div>
   );
 }
