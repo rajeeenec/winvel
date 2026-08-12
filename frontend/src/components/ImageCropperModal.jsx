@@ -1,126 +1,94 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import './ImageCropperModal.css';
 
 export default function ImageCropperModal({ src, onClose, onCrop }) {
+  const imgRef = useRef(null);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
-  const [baseSize, setBaseSize] = useState({ width: 0, height: 0 });
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1.0);
-  const [dragging, setDragging] = useState(false);
+  const [displaySize, setDisplaySize] = useState({ width: 0, height: 0 });
+  const [cropBox, setCropBox] = useState({ left: 0, top: 0, width: 0, height: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [imgElement, setImgElement] = useState(null);
 
-  useEffect(() => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      setImageSize({ width: w, height: h });
-      setImgElement(img);
+  const handleImageLoad = (e) => {
+    const { clientWidth, clientHeight, naturalWidth, naturalHeight } = e.target;
+    setDisplaySize({ width: clientWidth, height: clientHeight });
+    setImageSize({ width: naturalWidth, height: naturalHeight });
+    setImgElement(e.target);
 
-      const viewportW = 240;
-      const viewportH = 80;
-      const aspect = w / h;
-      const viewportAspect = viewportW / viewportH;
-
-      let baseW, baseH;
-      if (aspect > viewportAspect) {
-        baseH = viewportH;
-        baseW = viewportH * aspect;
-      } else {
-        baseW = viewportW;
-        baseH = viewportW / aspect;
-      }
-
-      setBaseSize({ width: baseW, height: baseH });
-
-      // Center the image in viewport
-      const initialX = (viewportW - baseW) / 2;
-      const initialY = (viewportH - baseH) / 2;
-      setPosition({ x: initialX, y: initialY });
-      setZoom(1.0);
-    };
-  }, [src]);
-
-  const getConstrainedPosition = (x, y, currentZoom) => {
-    const viewportW = 240;
-    const viewportH = 80;
-    const currentW = baseSize.width * currentZoom;
-    const currentH = baseSize.height * currentZoom;
-
-    let newX = x;
-    let newY = y;
-
-    if (currentW > viewportW) {
-      newX = Math.max(viewportW - currentW, Math.min(0, newX));
-    } else {
-      newX = 0;
-    }
-
-    if (currentH > viewportH) {
-      newY = Math.max(viewportH - currentH, Math.min(0, newY));
-    } else {
-      newY = 0;
-    }
-
-    return { x: newX, y: newY };
-  };
-
-  const handleMouseDown = (e) => {
-    setDragging(true);
-    setDragStart({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y,
+    // Initial crop box size: 80% of width and height of the image container
+    const w = Math.round(clientWidth * 0.8);
+    const h = Math.round(clientHeight * 0.8);
+    setCropBox({
+      left: Math.round((clientWidth - w) / 2),
+      top: Math.round((clientHeight - h) / 2),
+      width: w,
+      height: h,
     });
   };
 
+  const handleMouseDown = (e, action) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startY = e.clientY;
+
+    if (action === 'drag') {
+      setIsDragging(true);
+      setDragStart({ x: startX - cropBox.left, y: startY - cropBox.top });
+    } else if (action === 'resize') {
+      setIsResizing(true);
+      setDragStart({ x: startX - cropBox.width, y: startY - cropBox.height });
+    }
+  };
+
   const handleMouseMove = (e) => {
-    if (!dragging) return;
-    const newX = e.clientX - dragStart.x;
-    const newY = e.clientY - dragStart.y;
-    setPosition(getConstrainedPosition(newX, newY, zoom));
+    if (!isDragging && !isResizing) return;
+
+    const currentX = e.clientX;
+    const currentY = e.clientY;
+
+    if (isDragging) {
+      let newLeft = currentX - dragStart.x;
+      let newTop = currentY - dragStart.y;
+
+      // Ensure crop box stays within image display boundaries
+      newLeft = Math.max(0, Math.min(displaySize.width - cropBox.width, newLeft));
+      newTop = Math.max(0, Math.min(displaySize.height - cropBox.height, newTop));
+
+      setCropBox((prev) => ({ ...prev, left: newLeft, top: newTop }));
+    } else if (isResizing) {
+      let newWidth = currentX - dragStart.x;
+      let newHeight = currentY - dragStart.y;
+
+      // Minimum width & height constraints, and maximum boundary constraints
+      newWidth = Math.max(40, Math.min(displaySize.width - cropBox.left, newWidth));
+      newHeight = Math.max(20, Math.min(displaySize.height - cropBox.top, newHeight));
+
+      setCropBox((prev) => ({ ...prev, width: newWidth, height: newHeight }));
+    }
   };
 
-  const handleMouseUpOrLeave = () => {
-    setDragging(false);
-  };
-
-  const handleZoomChange = (e) => {
-    const nextZoom = parseFloat(e.target.value);
-    const viewportW = 240;
-    const viewportH = 80;
-
-    const centerX = viewportW / 2;
-    const centerY = viewportH / 2;
-
-    const imgX = (centerX - position.x) / zoom;
-    const imgY = (centerY - position.y) / zoom;
-
-    const nextX = centerX - imgX * nextZoom;
-    const nextY = centerY - imgY * nextZoom;
-
-    setZoom(nextZoom);
-    setPosition(getConstrainedPosition(nextX, nextY, nextZoom));
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setIsResizing(false);
   };
 
   const handleSave = () => {
-    if (!imgElement || !baseSize.width) return;
+    if (!imgElement || !displaySize.width) return;
 
-    const viewportW = 240;
-    const viewportH = 80;
-    const currentW = baseSize.width * zoom;
+    // Calculate scale factor from display size to natural size
+    const scaleX = imageSize.width / displaySize.width;
+    const scaleY = imageSize.height / displaySize.height;
 
-    // Aspect scaling ratio
-    const scale = imageSize.width / currentW;
-    const srcX = -position.x * scale;
-    const srcY = -position.y * scale;
-    const srcW = viewportW * scale;
-    const srcH = viewportH * scale;
+    const srcX = cropBox.left * scaleX;
+    const srcY = cropBox.top * scaleY;
+    const srcW = cropBox.width * scaleX;
+    const srcH = cropBox.height * scaleY;
 
     const canvas = document.createElement('canvas');
-    canvas.width = 600;
-    canvas.height = 200;
+    canvas.width = Math.round(srcW);
+    canvas.height = Math.round(srcH);
     const ctx = canvas.getContext('2d');
 
     ctx.drawImage(imgElement, srcX, srcY, srcW, srcH, 0, 0, canvas.width, canvas.height);
@@ -137,45 +105,47 @@ export default function ImageCropperModal({ src, onClose, onCrop }) {
       <div className="cropper-modal">
         <div className="cropper-header">
           <h3>Crop Store Logo</h3>
-          <p>Drag the image to adjust position, and use the zoom slider below to resize. The dashed border is the final crop area.</p>
+          <p>Drag the box to move it. Drag the green dot in the bottom-right corner to resize the cropping area.</p>
         </div>
 
-        <div className="cropper-workspace">
+        <div className="cropper-workspace-free">
           <div
-            className="cropper-viewport"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUpOrLeave}
-            onMouseLeave={handleMouseUpOrLeave}
+            className="cropper-container-free"
+            style={{ width: displaySize.width || 'auto', height: displaySize.height || 'auto' }}
           >
-            {imgElement && (
-              <img
-                src={src}
-                alt="Crop preview"
-                className="cropper-image"
-                style={{
-                  width: `${baseSize.width * zoom}px`,
-                  height: `${baseSize.height * zoom}px`,
-                  transform: `translate(${position.x}px, ${position.y}px)`,
-                }}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="cropper-controls">
-          <div className="cropper-zoom-row">
-            <span>Zoom:</span>
-            <input
-              type="range"
-              min="1.0"
-              max="3.0"
-              step="0.05"
-              value={zoom}
-              onChange={handleZoomChange}
-              className="cropper-slider"
+            <img
+              ref={imgRef}
+              src={src}
+              alt="Crop preview"
+              className="cropper-image-free"
+              onLoad={handleImageLoad}
             />
-            <span>{Math.round(zoom * 100)}%</span>
+            {displaySize.width > 0 && (
+              <div
+                className="cropper-overlay-free"
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+              >
+                <div
+                  className="cropper-box-free"
+                  style={{
+                    left: `${cropBox.left}px`,
+                    top: `${cropBox.top}px`,
+                    width: `${cropBox.width}px`,
+                    height: `${cropBox.height}px`,
+                  }}
+                  onMouseDown={(e) => handleMouseDown(e, 'drag')}
+                >
+                  <div
+                    className="cropper-handle-br"
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      handleMouseDown(e, 'resize');
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

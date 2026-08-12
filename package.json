@@ -19,8 +19,5 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
-  },
-  "dependencies": {
-    "multer": "^2.2.0"
   }
 }

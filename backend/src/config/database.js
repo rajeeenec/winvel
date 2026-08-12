@@ -1,27 +1,21 @@
-import mysql from 'mysql2/promise';
+import knex from 'knex';
 import { env } from './env.js';
 
-let pool = null;
-
-export function getPool() {
-  if (!pool) {
-    pool = mysql.createPool({
-      host: env.db.host,
-      port: env.db.port,
-      user: env.db.user,
-      password: env.db.password,
-      database: env.db.database,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-    });
-  }
-  return pool;
-}
+export const db = knex({
+  client: 'mysql2',
+  connection: {
+    host: env.db.host,
+    port: env.db.port,
+    user: env.db.user,
+    password: env.db.password,
+    database: env.db.database,
+  },
+  pool: { min: 2, max: 10 }
+});
 
 export async function testConnection() {
-  const connection = await getPool().getConnection();
-  await connection.ping();
-  connection.release();
+  await db.raw('SELECT 1');
   return true;
 }
+
+

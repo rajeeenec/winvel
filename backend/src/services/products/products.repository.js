@@ -1,92 +1,76 @@
-import { getPool } from '../../config/database.js';
+import { db } from '../../config/database.js';
 
 export async function findAll({ categoryId, featured, activeOnly = true } = {}) {
-  let query = `
-    SELECT p.*, c.name AS category_name
-    FROM products p
-    LEFT JOIN categories c ON p.category_id = c.id
-    WHERE 1=1
-  `;
-  const params = [];
+  const query = db('products as p')
+    .select('p.*', 'c.name as category_name')
+    .leftJoin('categories as c', 'p.category_id', 'c.id');
 
   if (activeOnly) {
-    query += ' AND p.is_active = TRUE';
+    query.where('p.is_active', true);
   }
   if (categoryId) {
-    query += ' AND p.category_id = ?';
-    params.push(categoryId);
+    query.where('p.category_id', categoryId);
   }
   if (featured) {
-    query += ' AND p.is_featured = TRUE';
+    query.where('p.is_featured', true);
   }
 
-  query += ' ORDER BY p.created_at DESC';
-  const [rows] = await getPool().execute(query, params);
-  return rows;
+  return await query.orderBy('p.created_at', 'desc');
 }
 
 export async function findById(id) {
-  const [rows] = await getPool().execute(
-    `SELECT p.*, c.name AS category_name
-     FROM products p
-     LEFT JOIN categories c ON p.category_id = c.id
-     WHERE p.id = ?`,
-    [id]
-  );
-  return rows[0] || null;
+  const row = await db('products as p')
+    .select('p.*', 'c.name as category_name')
+    .leftJoin('categories as c', 'p.category_id', 'c.id')
+    .where('p.id', id)
+    .first();
+  return row || null;
 }
 
 export async function findVariantsByProductId(productId) {
-  const [rows] = await getPool().execute(
-    'SELECT * FROM product_variants WHERE product_id = ? ORDER BY size, color',
-    [productId]
-  );
-  return rows;
+  return await db('product_variants')
+    .where({ product_id: productId })
+    .orderBy(['size', 'color']);
 }
 
 export async function create(product) {
-  const [result] = await getPool().execute(
-    `INSERT INTO products (category_id, name, slug, description, price, compare_price, sku, image_url, is_active, is_featured)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      product.categoryId,
-      product.name,
-      product.slug,
-      product.description,
-      product.price,
-      product.comparePrice || null,
-      product.sku,
-      product.imageUrl || null,
-      product.isActive ?? true,
-      product.isFeatured ?? false,
-    ]
-  );
-  return findById(result.insertId);
+  const [insertId] = await db('products').insert({
+    category_id: product.categoryId,
+    name: product.name,
+    slug: product.slug,
+    description: product.description,
+    price: product.price,
+    compare_price: product.comparePrice || null,
+    sku: product.sku,
+    image_url: product.imageUrl || null,
+    is_active: product.isActive ?? true,
+    is_featured: product.isFeatured ?? false,
+  });
+  return findById(insertId);
 }
 
 export async function update(id, product) {
-  await getPool().execute(
-    `UPDATE products SET
-      category_id = ?, name = ?, slug = ?, description = ?, price = ?,
-      compare_price = ?, sku = ?, image_url = ?, is_active = ?, is_featured = ?
-     WHERE id = ?`,
-    [
-      product.categoryId,
-      product.name,
-      product.slug,
-      product.description,
-      product.price,
-      product.comparePrice || null,
-      product.sku,
-      product.imageUrl || null,
-      product.isActive ?? true,
-      product.isFeatured ?? false,
-      id,
-    ]
-  );
+  await db('products')
+    .where({ id })
+    .update({
+      category_id: product.categoryId,
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      price: product.price,
+      compare_price: product.comparePrice || null,
+      sku: product.sku,
+      image_url: product.imageUrl || null,
+      is_active: product.isActive ?? true,
+      is_featured: product.isFeatured ?? false,
+    });
   return findById(id);
 }
 
 export async function remove(id) {
-  await getPool().execute('UPDATE products SET is_active = FALSE WHERE id = ?', [id]);
+  await db('products')
+    .where({ id })
+    .update({ is_active: false });
 }
+
+

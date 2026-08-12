@@ -118,6 +118,16 @@ This starts both:
 - **Backend API** at http://localhost:5000
 - **Frontend** at http://localhost:3000
 
+run reparate go separate path and run 
+
+ADMIN@DESKTOP-UC767RF MINGW64 /d/Documents/winvel/frontend (main)
+$ npm run dev
+
+
+ADMIN@DESKTOP-UC767RF MINGW64 /d/Documents/winvel/backend (main)
+$ npm run dev
+
+
 ## API Endpoints
 
 | Method | Endpoint | Description | Auth |

@@ -1,70 +1,60 @@
-import { getPool } from '../../config/database.js';
+import { db } from '../../config/database.js';
 
 export async function findAll({ publicOnly = false } = {}) {
-  let query = 'SELECT * FROM settings';
-  const params = [];
+  const query = db('settings');
 
   if (publicOnly) {
-    query += ' WHERE is_public = TRUE';
+    query.where({ is_public: true });
   }
 
-  query += ' ORDER BY category, setting_key';
-  const [rows] = await getPool().execute(query, params);
-  return rows;
+  return await query.orderBy(['category', 'setting_key']);
 }
 
 export async function findByCategory(category, { publicOnly = false } = {}) {
-  let query = 'SELECT * FROM settings WHERE category = ?';
-  const params = [category];
+  const query = db('settings').where({ category });
 
   if (publicOnly) {
-    query += ' AND is_public = TRUE';
+    query.where({ is_public: true });
   }
 
-  query += ' ORDER BY setting_key';
-  const [rows] = await getPool().execute(query, params);
-  return rows;
+  return await query.orderBy('setting_key');
 }
 
 export async function findByKey(category, settingKey) {
-  const [rows] = await getPool().execute(
-    'SELECT * FROM settings WHERE category = ? AND setting_key = ?',
-    [category, settingKey]
-  );
-  return rows[0] || null;
+  const row = db('settings')
+    .where({ category, setting_key: settingKey })
+    .first();
+  return row || null;
 }
 
 export async function upsert({ category, settingKey, settingValue }) {
-  await getPool().execute(
-    `INSERT INTO settings (category, setting_key, setting_value, value_type, label, is_public)
-     VALUES (?, ?, ?, 'string', ?, FALSE)
-     ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)`,
-    [category, settingKey, settingValue, settingKey]
-  );
+  await db('settings')
+    .insert({
+      category,
+      setting_key: settingKey,
+      setting_value: settingValue,
+      value_type: 'string',
+      label: settingKey,
+      is_public: false,
+    })
+    .onConflict(['category', 'setting_key'])
+    .merge({
+      setting_value: settingValue,
+    });
+
   return findByKey(category, settingKey);
 }
 
 export async function bulkUpdate(updates) {
-  const pool = getPool();
-  const connection = await pool.getConnection();
-
-  try {
-    await connection.beginTransaction();
-
+  await db.transaction(async (trx) => {
     for (const { category, settingKey, settingValue } of updates) {
-      await connection.execute(
-        'UPDATE settings SET setting_value = ? WHERE category = ? AND setting_key = ?',
-        [settingValue, category, settingKey]
-      );
+      await trx('settings')
+        .where({ category, setting_key: settingKey })
+        .update({ setting_value: settingValue });
     }
-
-    await connection.commit();
-  } catch (err) {
-    await connection.rollback();
-    throw err;
-  } finally {
-    connection.release();
-  }
+  });
 
   return findAll();
 }
+
+

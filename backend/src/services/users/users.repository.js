@@ -1,28 +1,29 @@
-import { getPool } from '../../config/database.js';
+import { db } from '../../config/database.js';
 
 export async function findAll({ role } = {}) {
-  let query = 'SELECT id, email, first_name, last_name, role, phone, is_active, created_at FROM users WHERE 1=1';
-  const params = [];
+  const query = db('users')
+    .select('id', 'email', 'first_name', 'last_name', 'role', 'phone', 'is_active', 'created_at');
 
   if (role) {
-    query += ' AND role = ?';
-    params.push(role);
+    query.where({ role });
   }
 
-  query += ' ORDER BY created_at DESC';
-  const [rows] = await getPool().execute(query, params);
-  return rows;
+  return await query.orderBy('created_at', 'desc');
 }
 
 export async function findById(id) {
-  const [rows] = await getPool().execute(
-    'SELECT id, email, first_name, last_name, role, phone, is_active, created_at FROM users WHERE id = ?',
-    [id]
-  );
-  return rows[0] || null;
+  const row = await db('users')
+    .select('id', 'email', 'first_name', 'last_name', 'role', 'phone', 'is_active', 'created_at')
+    .where({ id })
+    .first();
+  return row || null;
 }
 
 export async function updateStatus(id, isActive) {
-  await getPool().execute('UPDATE users SET is_active = ? WHERE id = ?', [isActive, id]);
+  await db('users')
+    .where({ id })
+    .update({ is_active: isActive });
   return findById(id);
 }
+
+
