@@ -45,11 +45,31 @@ export function SettingsProvider({ children }) {
 
   const uploadLogo = async (file) => {
     const formData = new FormData();
-    formData.append('logo', file);
-    const data = await api.upload('/settings/upload/logo', formData);
-    setSettings(data.settings);
-    applyTheme({ ...DEFAULT_THEME, ...data.settings.flat });
-    return data;
+    formData.append('file', file);
+
+    const response = await fetch('http://localhost:5001/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const json = await response.json();
+    if (!response.ok) {
+      throw new Error(json.error || 'Upload failed');
+    }
+
+    const fileData = json.data; // { id, filename, url }
+
+    // Save the numeric file ID as string to main backend settings
+    const updatedSettings = await updateSettings({
+      'store.logo_url': String(fileData.id),
+    });
+
+    const resolvedUrl = updatedSettings.flat['store.logo_url'];
+
+    return {
+      logoUrl: resolvedUrl,
+      settings: updatedSettings,
+    };
   };
 
   return (

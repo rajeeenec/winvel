@@ -5,12 +5,14 @@
   "description": "T-shirt e-commerce platform - React + Express + MySQL",
   "workspaces": [
     "backend",
-    "frontend"
+    "frontend",
+    "file-service"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\" \"npm run dev -w file-service\"",
     "dev:backend": "npm run dev -w backend",
     "dev:frontend": "npm run dev -w frontend",
+    "dev:file-service": "npm run dev -w file-service",
     "build": "npm run build -w frontend",
     "db:init": "npm run db:init -w backend",
     "docker:up": "docker compose up -d --build",

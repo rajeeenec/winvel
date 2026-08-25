@@ -7,8 +7,6 @@ import RegisterPage from './pages/shared/RegisterPage';
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
       <Route path="/admin/*" element={<AdminRoutes />} />
       <Route path="/*" element={<UserRoutes />} />
       <Route path="*" element={<Navigate to="/" replace />} />

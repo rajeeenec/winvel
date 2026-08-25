@@ -1,45 +1,54 @@
 import { db } from '../../config/database.js';
+import { resolveFileUrl } from '../../utils/fileResolver.js';
 
 export async function findAll({ publicOnly = false } = {}) {
-  const query = db('settings');
+  const rows = await db('settings').orderBy('key_name');
+  const mapped = [];
 
-  if (publicOnly) {
-    query.where({ is_public: true });
+  for (const row of rows) {
+    const dotIdx = row.key_name.indexOf('.');
+    const category = dotIdx > -1 ? row.key_name.substring(0, dotIdx) : 'general';
+    const settingKey = dotIdx > -1 ? row.key_name.substring(dotIdx + 1) : row.key_name;
+
+    let val = row.value;
+    if (settingKey === 'logo_url' && val) {
+      val = await resolveFileUrl(val);
+    }
+
+    mapped.push({
+      category,
+      setting_key: settingKey,
+      setting_value: val || '',
+      value_type: row.type,
+      label: settingKey,
+      is_public: true
+    });
   }
 
-  return await query.orderBy(['category', 'setting_key']);
+  return mapped;
 }
 
 export async function findByCategory(category, { publicOnly = false } = {}) {
-  const query = db('settings').where({ category });
-
-  if (publicOnly) {
-    query.where({ is_public: true });
-  }
-
-  return await query.orderBy('setting_key');
+  const rows = await findAll({ publicOnly });
+  return rows.filter((r) => r.category === category);
 }
 
 export async function findByKey(category, settingKey) {
-  const row = db('settings')
-    .where({ category, setting_key: settingKey })
-    .first();
-  return row || null;
+  const rows = await findAll();
+  return rows.find((r) => r.category === category && r.setting_key === settingKey) || null;
 }
 
 export async function upsert({ category, settingKey, settingValue }) {
+  const keyName = `${category}.${settingKey}`;
   await db('settings')
     .insert({
-      category,
-      setting_key: settingKey,
-      setting_value: settingValue,
-      value_type: 'string',
-      label: settingKey,
-      is_public: false,
+      key_name: keyName,
+      value: settingValue,
+      type: 'string',
     })
-    .onConflict(['category', 'setting_key'])
+    .onConflict('key_name')
     .merge({
-      setting_value: settingValue,
+      value: settingValue,
     });
 
   return findByKey(category, settingKey);
@@ -48,13 +57,12 @@ export async function upsert({ category, settingKey, settingValue }) {
 export async function bulkUpdate(updates) {
   await db.transaction(async (trx) => {
     for (const { category, settingKey, settingValue } of updates) {
+      const keyName = `${category}.${settingKey}`;
       await trx('settings')
-        .where({ category, setting_key: settingKey })
-        .update({ setting_value: settingValue });
+        .where({ key_name: keyName })
+        .update({ value: settingValue });
     }
   });
 
   return findAll();
 }
-
-

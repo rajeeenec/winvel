@@ -71,6 +71,31 @@ services:
       retries: 5
       start_period: 15s
 
+
+  file-service:
+    build:
+      context: .
+      dockerfile: file-service/Dockerfile
+    container_name: winvel-file-service
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      NODE_ENV: production
+      FILE_SERVICE_PORT: 5001
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: winvel_user
+      DB_PASSWORD: winvel_pass
+      DB_NAME: winvel_db
+    volumes:
+      - uploads_data:/app/file-service/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+
   frontend:
     build:
       context: .

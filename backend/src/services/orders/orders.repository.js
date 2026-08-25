@@ -1,15 +1,16 @@
 import { db } from '../../config/database.js';
+import { resolveFileUrl } from '../../utils/fileResolver.js';
 
 export async function findAll({ userId, status } = {}) {
   const query = db('orders as o')
-    .select('o.*', 'u.email', 'u.first_name', 'u.last_name')
+    .select('o.*', 'o.order_status as status', 'u.email', 'u.first_name', 'u.last_name')
     .join('users as u', 'o.user_id', 'u.id');
 
   if (userId) {
     query.where('o.user_id', userId);
   }
   if (status) {
-    query.where('o.status', status);
+    query.where('o.order_status', status);
   }
 
   return await query.orderBy('o.created_at', 'desc');
@@ -17,7 +18,7 @@ export async function findAll({ userId, status } = {}) {
 
 export async function findById(id) {
   const row = await db('orders as o')
-    .select('o.*', 'u.email', 'u.first_name', 'u.last_name')
+    .select('o.*', 'o.order_status as status', 'u.email', 'u.first_name', 'u.last_name')
     .join('users as u', 'o.user_id', 'u.id')
     .where('o.id', id)
     .first();
@@ -25,18 +26,19 @@ export async function findById(id) {
 }
 
 export async function findItemsByOrderId(orderId) {
-  return await db('order_items as oi')
-    .select('oi.*', 'pv.size', 'pv.color', 'p.name as product_name', 'p.image_url')
-    .join('product_variants as pv', 'oi.product_variant_id', 'pv.id')
-    .join('products as p', 'pv.product_id', 'p.id')
-    .where('oi.order_id', orderId);
+  const rows = await db('order_items')
+    .select('*', 'size_name as size', 'color_name as color')
+    .where({ order_id: orderId });
+    
+  for (const row of rows) {
+    row.image_url = await resolveFileUrl(row.image_url);
+  }
+  return rows;
 }
 
 export async function updateStatus(id, status) {
   await db('orders')
     .where({ id })
-    .update({ status });
+    .update({ order_status: status });
   return findById(id);
 }
-
-

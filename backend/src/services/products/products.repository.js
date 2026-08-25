@@ -1,51 +1,95 @@
 import { db } from '../../config/database.js';
+import { resolveFileUrl } from '../../utils/fileResolver.js';
 
 export async function findAll({ categoryId, featured, activeOnly = true } = {}) {
   const query = db('products as p')
-    .select('p.*', 'c.name as category_name')
-    .leftJoin('categories as c', 'p.category_id', 'c.id');
+    .select('p.*', 'c.name as category_name', 'c.id as category_id', 'pi.image_url')
+    .leftJoin('product_categories as pc', 'p.id', 'pc.product_id')
+    .leftJoin('categories as c', 'pc.category_id', 'c.id')
+    .leftJoin('product_images as pi', function() {
+      this.on('p.id', '=', 'pi.product_id').andOn('pi.is_primary', '=', db.raw('?', [true]));
+    });
 
   if (activeOnly) {
-    query.where('p.is_active', true);
+    query.where('p.status', 'active');
   }
   if (categoryId) {
-    query.where('p.category_id', categoryId);
+    query.where('pc.category_id', categoryId);
   }
   if (featured) {
-    query.where('p.is_featured', true);
+    query.where('p.featured', true);
   }
 
-  return await query.orderBy('p.created_at', 'desc');
+  const rows = await query.orderBy('p.created_at', 'desc');
+  for (const row of rows) {
+    // If no primary image from product_images, fallback to base image_url property if any
+    const finalImage = row.image_url || row.image_url_legacy;
+    row.image_url = await resolveFileUrl(finalImage);
+    row.is_active = row.status === 'active';
+    row.is_featured = row.featured === 1 || row.featured === true;
+    row.price = row.base_price;
+  }
+  return rows;
 }
 
 export async function findById(id) {
   const row = await db('products as p')
-    .select('p.*', 'c.name as category_name')
-    .leftJoin('categories as c', 'p.category_id', 'c.id')
+    .select('p.*', 'c.name as category_name', 'c.id as category_id', 'pi.image_url')
+    .leftJoin('product_categories as pc', 'p.id', 'pc.product_id')
+    .leftJoin('categories as c', 'pc.category_id', 'c.id')
+    .leftJoin('product_images as pi', function() {
+      this.on('p.id', '=', 'pi.product_id').andOn('pi.is_primary', '=', db.raw('?', [true]));
+    })
     .where('p.id', id)
     .first();
+
+  if (row) {
+    const finalImage = row.image_url || row.image_url_legacy;
+    row.image_url = await resolveFileUrl(finalImage);
+    row.is_active = row.status === 'active';
+    row.is_featured = row.featured === 1 || row.featured === true;
+    row.price = row.base_price;
+  }
   return row || null;
 }
 
 export async function findVariantsByProductId(productId) {
-  return await db('product_variants')
-    .where({ product_id: productId })
-    .orderBy(['size', 'color']);
+  const rows = await db('product_variants as pv')
+    .select('pv.*', 's.name as size', 'c.name as color')
+    .leftJoin('sizes as s', 'pv.size_id', 's.id')
+    .leftJoin('colors as c', 'pv.color_id', 'c.id')
+    .where('pv.product_id', productId)
+    .orderBy(['s.sort_order', 'c.sort_order']);
+  return rows;
 }
 
 export async function create(product) {
   const [insertId] = await db('products').insert({
-    category_id: product.categoryId,
     name: product.name,
     slug: product.slug,
     description: product.description,
-    price: product.price,
-    compare_price: product.comparePrice || null,
-    sku: product.sku,
-    image_url: product.imageUrl || null,
-    is_active: product.isActive ?? true,
-    is_featured: product.isFeatured ?? false,
+    base_price: product.price,
+    brand: 'WINVEL',
+    status: (product.isActive ?? true) ? 'active' : 'inactive',
+    featured: product.isFeatured ?? false,
   });
+
+  if (product.categoryId) {
+    await db('product_categories').insert({
+      product_id: insertId,
+      category_id: product.categoryId
+    });
+  }
+
+  // Seed primary product image if URL is supplied
+  if (product.imageUrl) {
+    await db('product_images').insert({
+      product_id: insertId,
+      image_url: product.imageUrl,
+      is_primary: true
+    });
+  }
+
   return findById(insertId);
 }
 
@@ -53,24 +97,36 @@ export async function update(id, product) {
   await db('products')
     .where({ id })
     .update({
-      category_id: product.categoryId,
       name: product.name,
       slug: product.slug,
       description: product.description,
-      price: product.price,
-      compare_price: product.comparePrice || null,
-      sku: product.sku,
-      image_url: product.imageUrl || null,
-      is_active: product.isActive ?? true,
-      is_featured: product.isFeatured ?? false,
+      base_price: product.price,
+      status: (product.isActive ?? true) ? 'active' : 'inactive',
+      featured: product.isFeatured ?? false,
     });
+
+  if (product.categoryId) {
+    await db('product_categories').where({ product_id: id }).delete();
+    await db('product_categories').insert({
+      product_id: id,
+      category_id: product.categoryId
+    });
+  }
+
+  if (product.imageUrl) {
+    await db('product_images').where({ product_id: id, is_primary: true }).delete();
+    await db('product_images').insert({
+      product_id: id,
+      image_url: product.imageUrl,
+      is_primary: true
+    });
+  }
+
   return findById(id);
 }
 
 export async function remove(id) {
   await db('products')
     .where({ id })
-    .update({ is_active: false });
+    .update({ status: 'archived' });
 }
-
-

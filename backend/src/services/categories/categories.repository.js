@@ -3,13 +3,16 @@ import { db } from '../../config/database.js';
 export async function findAll(activeOnly = true) {
   const query = db('categories');
   if (activeOnly) {
-    query.where('is_active', true);
+    query.where('status', true);
   }
   return await query.orderBy('name');
 }
 
 export async function findById(id) {
   const row = await db('categories').where({ id }).first();
+  if (row) {
+    row.is_active = row.status === 1 || row.status === true;
+  }
   return row || null;
 }
 
