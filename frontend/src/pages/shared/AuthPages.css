@@ -593,3 +593,94 @@
   height: 60px;
 }
 
+/* Custom styles for Login Page form structure to make it spacious and balanced */
+.login-card {
+  max-width: 440px; /* Comfortable width */
+  padding: 1.75rem 2rem; /* More vertical padding to make it look taller and spacious */
+}
+
+.login-card .auth-title {
+  text-transform: none;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.2rem;
+}
+
+.login-card .auth-subtitle {
+  font-size: 0.85rem;
+  color: #666666;
+  margin-bottom: 1.5rem; /* Larger spacing */
+}
+
+.login-badge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.login-icon-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.login-icon-badge svg {
+  width: 24px;
+  height: 24px;
+}
+
+.login-card .form-group {
+  margin-bottom: 1.1rem; /* More spacing between email and password */
+}
+
+.login-card input[type="text"],
+.login-card input[type="email"],
+.login-card input[type="password"] {
+  padding: 0.75rem 1rem !important; /* Spacious inputs */
+  font-size: 0.925rem;
+}
+
+.login-card .input-with-icon input {
+  padding-left: 2.8rem !important;
+}
+
+.login-card .input-icon {
+  left: 1rem;
+}
+
+.login-card .auth-options {
+  margin: 0.6rem 0 1.2rem; /* Spacious margin */
+}
+
+.login-card .btn-auth-primary {
+  padding: 0.75rem; /* Comfortable padding */
+  font-size: 0.95rem;
+}
+
+.login-card .auth-card-separator {
+  margin: 0.9rem 0; /* More separator spacing */
+}
+
+.login-card .social-login-group {
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.login-card .btn-social-login {
+  padding: 0.65rem;
+  font-size: 0.9rem;
+}
+
+.login-card .auth-card-footer {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+
