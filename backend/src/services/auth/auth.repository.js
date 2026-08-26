@@ -26,13 +26,14 @@ export async function findUserById(id) {
   return row || null;
 }
 
-export async function createUser({ email, passwordHash, firstName, lastName, role = 'customer' }) {
+export async function createUser({ email, passwordHash, firstName, lastName, phone, role = 'customer' }) {
   const roleId = role === 'admin' ? 2 : 1;
   const [insertId] = await db('users').insert({
     email,
     password_hash: passwordHash,
     first_name: firstName,
     last_name: lastName,
+    phone,
     role_id: roleId,
     status: 'active'
   });

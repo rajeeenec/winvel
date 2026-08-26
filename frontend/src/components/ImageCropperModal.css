@@ -53,16 +53,17 @@
   min-height: 320px;
   /* Checkerboard background pattern for transparent images */
   background-image: linear-gradient(45deg, #1b1b1b 25%, transparent 25%),
-                    linear-gradient(-45deg, #1b1b1b 25%, transparent 25%),
-                    linear-gradient(45deg, transparent 75%, #1b1b1b 75%),
-                    linear-gradient(-45deg, transparent 75%, #1b1b1b 75%);
+    linear-gradient(-45deg, #1b1b1b 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #1b1b1b 75%),
+    linear-gradient(-45deg, transparent 75%, #1b1b1b 75%);
   background-size: 16px 16px;
   background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
 }
 
 .cropper-container-free {
   position: relative;
-  overflow: hidden; /* Constrain the box shadow to stay within the image boundaries */
+  overflow: hidden;
+  /* Constrain the box shadow to stay within the image boundaries */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -73,7 +74,8 @@
   max-height: 300px;
   display: block;
   user-select: none;
-  pointer-events: none; /* Let drag events fall to the overlay container */
+  pointer-events: none;
+  /* Let drag events fall to the overlay container */
 }
 
 .cropper-overlay-free {
@@ -88,8 +90,10 @@
 
 .cropper-box-free {
   position: absolute;
-  border: 2px dashed #16a34a; /* crop box dashed border */
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55); /* crop box cutout shadow mask */
+  border: 2px dashed #16a34a;
+  /* crop box dashed border */
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+  /* crop box cutout shadow mask */
   box-sizing: border-box;
   cursor: move;
   z-index: 20;
@@ -127,8 +131,13 @@
 }
 
 @keyframes cropper-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes cropper-slide-up {
@@ -136,6 +145,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

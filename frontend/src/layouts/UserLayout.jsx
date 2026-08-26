@@ -21,21 +21,23 @@ export default function UserLayout() {
   };
 
   return (
-    <div className="user-layout">
+    <div className={`user-layout ${isAuthPage ? 'auth-page-layout' : ''}`}>
       {/* Top Announcement Bar */}
-      <div className="announcement-bar">
-        <div className="container announcement-bar-inner">
-          <span className="announcement-item">
-            <span className="icon">🚚</span> FREE SHIPPING ON ORDERS ABOVE ₹999
-          </span>
-          <span className="announcement-item highlight">
-            <span className="icon">🔥</span> WINVEL SUMMER SALE - UP TO 40% OFF
-          </span>
-          <span className="announcement-item">
-            <span className="icon">📞</span> SUPPORT: +91 98765 43210
-          </span>
+      {!isAuthPage && (
+        <div className="announcement-bar">
+          <div className="container announcement-bar-inner">
+            <span className="announcement-item">
+              <span className="icon">🚚</span> FREE SHIPPING ON ORDERS ABOVE ₹999
+            </span>
+            <span className="announcement-item highlight">
+              <span className="icon">🔥</span> WINVEL SUMMER SALE - UP TO 40% OFF
+            </span>
+            <span className="announcement-item">
+              <span className="icon">📞</span> SUPPORT: +91 98765 43210
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Header */}
       <header className="user-header">

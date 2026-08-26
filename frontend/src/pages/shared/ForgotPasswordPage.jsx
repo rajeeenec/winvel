@@ -31,7 +31,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="auth-container">
       {/* Left side panel - full bleed background image */}
-      <div className="auth-left" style={{ backgroundImage: `url(${bannerUrl})` }}>
+      <div className="auth-left forgot-banner" style={{ backgroundImage: `url(${bannerUrl})` }}>
         {/* Text and image tag removed to keep it clean */}
       </div>
 

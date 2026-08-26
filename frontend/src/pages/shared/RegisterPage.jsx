@@ -8,12 +8,21 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const { get } = useSettings();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [form, setForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const bannerUrl = get('theme', 'auth_banner', '/images/auth_banner.png');
+  const bannerUrl = get('theme', 'register_banner', '/images/default-images/create_account.png');
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,9 +31,26 @@ export default function RegisterPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (form.password !== form.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (!agreeTerms) {
+      setError('You must agree to the Terms & Conditions and Privacy Policy');
+      return;
+    }
+
     setLoading(true);
     try {
-      await register(form);
+      await register({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone,
+        password: form.password
+      });
       navigate('/');
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.');
@@ -36,47 +62,68 @@ export default function RegisterPage() {
   return (
     <div className="auth-container">
       {/* Left side panel - full bleed background image */}
-      <div className="auth-left" style={{ backgroundImage: `url(${bannerUrl})` }}>
+      <div className="auth-left register-banner" style={{ backgroundImage: `url(${bannerUrl})` }}>
         {/* Text and image tag removed to keep it clean */}
       </div>
 
       {/* Right side panel */}
       <div className="auth-right">
-        <div className="auth-card">
-          <h2 className="auth-title">CREATE AN ACCOUNT</h2>
-          <p className="auth-subtitle">Enter your details to register your account</p>
+        <div className="auth-card register-card">
+
+          <h2 className="auth-title">Create Account</h2>
+          <p className="auth-subtitle">Join WINVEL and enjoy the best in fashion.</p>
 
           <form onSubmit={handleSubmit}>
             {error && <div className="auth-error-msg">{error}</div>}
 
             {/* First Name & Last Name Grid */}
             <div className="auth-form-grid">
+              {/* First Name */}
               <div className="form-group">
-                <input
-                  type="text"
-                  name="firstName"
-                  placeholder="First Name"
-                  value={form.firstName}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
+                <label className="auth-form-label">First Name</label>
+                <div className="input-with-icon">
+                  <span className="input-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    name="firstName"
+                    placeholder="Enter your first name"
+                    value={form.firstName}
+                    onChange={handleChange}
+                    required
+                    disabled={loading}
+                  />
+                </div>
               </div>
+
+              {/* Last Name */}
               <div className="form-group">
-                <input
-                  type="text"
-                  name="lastName"
-                  placeholder="Last Name"
-                  value={form.lastName}
-                  onChange={handleChange}
-                  required
-                  disabled={loading}
-                />
+                <label className="auth-form-label">Last Name</label>
+                <div className="input-with-icon">
+                  <span className="input-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                  </span>
+                  <input
+                    type="text"
+                    name="lastName"
+                    placeholder="Enter your last name"
+                    value={form.lastName}
+                    onChange={handleChange}
+                    required
+                    disabled={loading}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Email Input */}
+            {/* Email Address */}
             <div className="form-group">
+              <label className="auth-form-label">Email Address</label>
               <div className="input-with-icon">
                 <span className="input-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -86,7 +133,7 @@ export default function RegisterPage() {
                 <input
                   type="email"
                   name="email"
-                  placeholder="Email address"
+                  placeholder="Enter your email address"
                   value={form.email}
                   onChange={handleChange}
                   required
@@ -95,8 +142,29 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Password Input */}
+            {/* Phone Number */}
             <div className="form-group">
+              <label className="auth-form-label">Phone Number</label>
+              <div className="input-with-icon">
+                <span className="input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.824-1.806-5.194-4.176-7-7l1.293-.97c.362-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H3.6c-1.105 0-2 .895-2 2v2.25Z" />
+                  </svg>
+                </span>
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Enter your phone number"
+                  value={form.phone}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div className="form-group">
+              <label className="auth-form-label">Password</label>
               <div className="input-with-icon">
                 <span className="input-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -106,7 +174,7 @@ export default function RegisterPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   name="password"
-                  placeholder="Password"
+                  placeholder="Create a password"
                   value={form.password}
                   onChange={handleChange}
                   required
@@ -132,6 +200,61 @@ export default function RegisterPage() {
               </div>
             </div>
 
+            {/* Confirm Password */}
+            <div className="form-group">
+              <label className="auth-form-label">Confirm Password</label>
+              <div className="input-with-icon">
+                <span className="input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                  </svg>
+                </span>
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  placeholder="Confirm your password"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Terms & Conditions and Privacy Policy checkbox */}
+            <div className="auth-options">
+              <label className="remember-me">
+                <input
+                  type="checkbox"
+                  name="agreeTerms"
+                  checked={agreeTerms}
+                  onChange={(e) => setAgreeTerms(e.target.checked)}
+                  required
+                  disabled={loading}
+                />
+                <span>
+                  I agree to the <strong>Terms & Conditions</strong> and <strong>Privacy Policy</strong>
+                </span>
+              </label>
+            </div>
+
             {/* Register button */}
             <button type="submit" className="btn-auth-primary" disabled={loading}>
               {loading ? 'CREATING ACCOUNT...' : 'CREATE ACCOUNT'}
@@ -151,16 +274,7 @@ export default function RegisterPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.85z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.85c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              Sign up with Google
-            </button>
-            <button type="button" className="btn-social-login">
-              <svg className="w-5 h-5 mr-2" viewBox="0 0 23 23">
-                <path fill="#F35325" d="M0 0h11v11H0z" />
-                <path fill="#81BC06" d="M12 0h11v11H12z" />
-                <path fill="#05A6F0" d="M0 12h11v11H0z" />
-                <path fill="#FFBA08" d="M12 12h11v11H12z" />
-              </svg>
-              Sign up with Microsoft
+              Continue with Google
             </button>
           </div>
 

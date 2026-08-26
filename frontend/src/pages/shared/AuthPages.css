@@ -1,19 +1,38 @@
 /* Premium Split Screen Auth Page Styling */
 
+/* Layout overrides for auth pages to prevent window scrolling */
+.user-layout.auth-page-layout {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.user-layout.auth-page-layout .user-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
 .auth-container {
   display: flex;
-  height: calc(100vh - 110px);
-  min-height: calc(100vh - 110px);
+  height: 100%;
+  min-height: 100%;
   width: 100%;
   background-color: #ffffff;
   overflow: hidden;
   box-sizing: border-box;
 }
 
+
+
+
+
 /* Left panel with clothing rack banner - full bleed cover background */
 .auth-left {
-  width: 50%;
   height: 100%;
+  max-width: 60%; /* Ensure right panel always has enough space */
+  flex-shrink: 1; /* Allow to scale down if needed */
   background-color: #f6f6f6;
   background-repeat: no-repeat;
   background-size: cover;
@@ -21,11 +40,23 @@
   box-sizing: border-box;
 }
 
+.auth-left.login-banner {
+  aspect-ratio: 1024 / 819; /* Wide aspect ratio for login page */
+}
+
+.auth-left.register-banner {
+  aspect-ratio: 1402 / 1122; /* Wide aspect ratio for create account page */
+}
+
+.auth-left.forgot-banner {
+  aspect-ratio: 1024 / 819; /* Wide aspect ratio for forgot password page */
+}
+
 /* Right panel with form card - using light contrast background and internal scroll */
 .auth-right {
-  width: 50%;
+  flex: 1; /* Take up all remaining space dynamically */
   height: 100%;
-  padding: 2rem 4rem;
+  padding: 0.5rem 2rem; /* Sweet-spot padding */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -36,8 +67,8 @@
 
 .auth-card {
   width: 100%;
-  max-width: 460px;
-  padding: 3rem 2.5rem;
+  max-width: 420px; /* Reduced from 460px to make the login form area look narrower and cleaner */
+  padding: 1.25rem 2rem; /* Reduced padding from 1.75rem 2rem */
   border: 1px solid #eaeaea;
   border-radius: 16px;
   background-color: #ffffff;
@@ -65,20 +96,20 @@
 }
 
 .auth-title {
-  font-size: 1.65rem;
+  font-size: 1.45rem; /* Reduced font-size from 1.65rem */
   font-weight: 800;
   text-align: center;
   text-transform: uppercase;
   color: #000000;
   letter-spacing: -0.01em;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.35rem 0; /* Reduced margin */
 }
 
 .auth-subtitle {
-  font-size: 0.95rem;
+  font-size: 0.9rem; /* Reduced font-size from 0.95rem */
   color: #666666;
   text-align: center;
-  margin: 0 0 2.5rem 0;
+  margin: 0 0 0.85rem 0; /* Reduced margin from 1.25rem */
   line-height: 1.4;
 }
 
@@ -91,7 +122,7 @@
 }
 
 .form-group {
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.75rem; /* Reduced margin from 0.9rem */
   position: relative;
 }
 
@@ -179,7 +210,7 @@
 .auth-card input[type="email"],
 .auth-card input[type="password"] {
   width: 100%;
-  padding: 0.95rem 1rem;
+  padding: 0.8rem 1rem; /* Reduced padding from 0.95rem */
   font-size: 0.95rem;
   border: 1px solid #dcdcdc;
   border-radius: 8px;
@@ -216,7 +247,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.875rem;
-  margin: 0.5rem 0 1.8rem;
+  margin: 0.4rem 0 0.85rem; /* Reduced margin from 1.2rem */
 }
 
 .remember-me {
@@ -246,7 +277,7 @@
 /* Buttons */
 .btn-auth-primary {
   width: 100%;
-  padding: 1rem;
+  padding: 0.75rem; /* Reduced padding from 0.85rem */
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.05em;
@@ -304,7 +335,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  margin: 1.8rem 0;
+  margin: 0.85rem 0; /* Reduced margin from 1.2rem */
   color: #9c9c9c;
   font-size: 0.85rem;
   font-weight: 600;
@@ -330,8 +361,8 @@
 .social-login-group {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  margin-bottom: 2rem;
+  gap: 0.5rem; /* Reduced gap from 0.65rem */
+  margin-bottom: 0.85rem; /* Reduced margin from 1.2rem */
 }
 
 .btn-social-login {
@@ -339,7 +370,7 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 0.85rem;
+  padding: 0.65rem; /* Reduced padding from 0.75rem */
   border: 1px solid #d2d2d2;
   border-radius: 6px;
   background-color: #ffffff;
@@ -387,7 +418,7 @@
   font-size: 0.9rem;
   color: #666666;
   margin: 0;
-  margin-top: 1.5rem;
+  margin-top: 0.85rem; /* Reduced margin from 1.1rem */
 }
 
 .auth-action-link {
@@ -413,22 +444,152 @@
 @media (max-width: 900px) {
   .auth-container {
     flex-direction: column;
-    height: auto;
-    min-height: auto;
-    overflow-y: auto;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
   }
   .auth-left {
     display: none; /* Hide image panel on mobile screens */
   }
   .auth-right {
     width: 100%;
-    height: auto;
-    padding: 3rem 1.5rem;
-    overflow-y: visible;
+    height: 100%;
+    padding: 1.5rem 1.25rem; /* Reduced padding to fit mobile screens better */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
   }
   .auth-card {
     border: none;
     box-shadow: none;
-    padding: 1.5rem 0.5rem;
+    padding: 0.5rem 0.25rem; /* Reduced padding to prevent height overflow on small phones */
+    width: 100%;
+    margin: auto;
   }
 }
+
+/* Custom styles for Register Page form structure matching user mockup */
+.register-card {
+  max-width: 480px; /* Slightly wider card for better grid field space */
+  padding: 0.95rem 1.75rem; /* Micro-optimized padding to prevent scrollbar */
+}
+
+.register-card .auth-title {
+  text-transform: none;
+  font-size: 1.5rem; /* Standard title size */
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.15rem; /* Slightly reduced */
+}
+
+.register-card .auth-subtitle {
+  font-size: 0.825rem; /* Standard subtitle size */
+  color: #666666;
+  margin-bottom: 1.05rem; /* Optimized space above the form fields */
+}
+
+.register-badge-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.35rem; 
+}
+
+.register-icon-badge {
+  width: 38px; 
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+}
+
+.register-icon-badge svg {
+  width: 18px;
+  height: 18px;
+}
+
+.auth-form-label {
+  display: block;
+  font-size: 0.775rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.2rem; /* Slightly reduced */
+  text-transform: none;
+  text-align: left;
+}
+
+.register-card .form-group {
+  margin-bottom: 0.55rem; /* Micro-optimized vertical margin */
+}
+
+.register-card .auth-form-grid {
+  margin-bottom: 0.45rem; /* Reduced space below name grid to eliminate scrollbar */
+  gap: 0.75rem;
+}
+
+.register-card input[type="text"],
+.register-card input[type="email"],
+.register-card input[type="tel"],
+.register-card input[type="password"] {
+  padding: 0.55rem 0.9rem !important; /* Micro-reduced from 0.6rem */
+  font-size: 0.9rem;
+}
+
+.register-card .input-with-icon input {
+  padding-left: 2.5rem !important; /* Proper padding for icon */
+}
+
+.register-card .input-icon {
+  left: 0.9rem;
+}
+
+.register-card .input-icon svg,
+.register-card .password-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.register-card .auth-options {
+  margin: 0.3rem 0 0.6rem; /* Slightly reduced */
+}
+
+.register-card .remember-me span {
+  font-size: 0.825rem;
+  color: #334155;
+  text-align: left;
+}
+
+.register-card .remember-me strong {
+  color: #0f172a;
+}
+
+.register-card .btn-auth-primary {
+  padding: 0.55rem; /* Micro-reduced from 0.6rem */
+  font-size: 0.9rem;
+}
+
+.register-card .auth-card-separator {
+  margin: 0.4rem 0; /* Slightly reduced */
+}
+
+.register-card .btn-social-login {
+  padding: 0.5rem; /* Slightly reduced */
+  font-size: 0.875rem;
+}
+
+.register-card .auth-card-footer {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Optimize header space on auth pages */
+.auth-page-layout .user-header-inner {
+  height: 60px;
+}
+

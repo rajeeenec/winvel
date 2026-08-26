@@ -12,7 +12,7 @@ function generateToken(user) {
   );
 }
 
-export async function register({ email, password, firstName, lastName }) {
+export async function register({ email, password, firstName, lastName, phone }) {
   const existing = await authRepo.findUserByEmail(email);
   if (existing) throw error('Email already registered', 409);
 
@@ -22,6 +22,7 @@ export async function register({ email, password, firstName, lastName }) {
     passwordHash,
     firstName,
     lastName,
+    phone,
   });
 
   const token = generateToken(user);
