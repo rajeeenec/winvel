@@ -10,7 +10,7 @@ export default function ForgotPasswordPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const bannerUrl = get('theme', 'auth_banner', '/images/auth_banner.png');
+  const bannerUrl = get('theme', 'forgot_banner', '/images/default-images/reset_password_image.jpg');
 
   const handleSubmit = async (e) => {
     e.preventDefault();

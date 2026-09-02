@@ -166,3 +166,19 @@ Access admin at http://localhost:3000/admin
 | admin@winvel.com | admin123 |
 
 Created automatically by `npm run db:init`. Change this password before deploying to production.
+
+
+run migrate command 
+
+npm run db:migrate
+
+
+
+Run all seed 
+
+npm run db:seed
+
+
+Run specific seed file 
+
+npm run db:seed -- 001_category_seed
