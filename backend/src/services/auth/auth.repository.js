@@ -8,6 +8,7 @@ export async function findUserByEmail(email) {
     .first();
   
   if (row) {
+    row.name = `${row.first_name || ''} ${row.last_name || ''}`.trim();
     row.is_active = row.status === 'active';
   }
   return row || null;
@@ -21,23 +22,23 @@ export async function findUserById(id) {
     .first();
 
   if (row) {
+    row.name = `${row.first_name || ''} ${row.last_name || ''}`.trim();
     row.is_active = row.status === 'active';
   }
   return row || null;
 }
 
-export async function createUser({ email, passwordHash, firstName, lastName, phone, role = 'customer' }) {
+export async function createUser({ email, passwordHash, name, firstName, lastName, phone, role = 'customer' }) {
   const roleId = role === 'admin' ? 2 : 1;
+  const finalName = (name || `${firstName || ''} ${lastName || ''}`).trim();
   const [insertId] = await db('users').insert({
     email,
     password_hash: passwordHash,
-    first_name: firstName,
-    last_name: lastName,
+    first_name: finalName,
+    last_name: null,
     phone,
     role_id: roleId,
     status: 'active'
   });
   return findUserById(insertId);
 }
-
-

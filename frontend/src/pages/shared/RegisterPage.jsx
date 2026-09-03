@@ -45,8 +45,8 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register({
-        firstName: form.firstName,
-        lastName: form.lastName,
+        name: form.name,
+        firstName: form.name,
         email: form.email,
         phone: form.phone,
         password: form.password
@@ -76,48 +76,24 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit}>
             {error && <div className="auth-error-msg">{error}</div>}
 
-            {/* First Name & Last Name Grid */}
-            <div className="auth-form-grid">
-              {/* First Name */}
-              <div className="form-group">
-                <label className="auth-form-label">First Name</label>
-                <div className="input-with-icon">
-                  <span className="input-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                    </svg>
-                  </span>
-                  <input
-                    type="text"
-                    name="firstName"
-                    placeholder="Enter your first name"
-                    value={form.firstName}
-                    onChange={handleChange}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-
-              {/* Last Name */}
-              <div className="form-group">
-                <label className="auth-form-label">Last Name</label>
-                <div className="input-with-icon">
-                  <span className="input-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                    </svg>
-                  </span>
-                  <input
-                    type="text"
-                    name="lastName"
-                    placeholder="Enter your last name"
-                    value={form.lastName}
-                    onChange={handleChange}
-                    required
-                    disabled={loading}
-                  />
-                </div>
+            {/* Full Name */}
+            <div className="form-group">
+              <label className="auth-form-label">Full Name</label>
+              <div className="input-with-icon">
+                <span className="input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Enter your full name"
+                  value={form.name || ''}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
               </div>
             </div>
 

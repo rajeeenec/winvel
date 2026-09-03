@@ -115,22 +115,22 @@ export default function ProductsPage() {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="card" style={{ marginBottom: '1.5rem', padding: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <Search size={18} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+      <div className="card" style={{ marginBottom: '1rem', padding: '0.75rem 1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+            Showing <strong>{filteredProducts.length}</strong> catalog items
+          </span>
+          <div style={{ position: 'relative', width: 280 }}>
+            <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
             <input
               type="text"
               className="form-control"
-              placeholder="Search products by name or slug..."
-              style={{ paddingLeft: '2.5rem', width: '100%' }}
+              placeholder="Search products..."
+              style={{ paddingLeft: '2.2rem', width: '100%', fontSize: '0.83rem' }}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-            Showing <strong>{filteredProducts.length}</strong> items
-          </span>
         </div>
       </div>
 

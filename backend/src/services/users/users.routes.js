@@ -8,6 +8,8 @@ router.use(authenticate, requireRole('admin'));
 
 router.get('/', usersController.getUsers);
 router.get('/:id', usersController.getUser);
+router.post('/', usersController.createUser);
+router.put('/:id', usersController.updateUser);
 router.patch('/:id/status', usersController.toggleUserStatus);
 
 export default router;

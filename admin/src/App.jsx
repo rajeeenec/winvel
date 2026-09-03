@@ -8,6 +8,9 @@ import ProductsPage from './pages/ProductsPage';
 import CategoriesPage from './pages/CategoriesPage';
 import OrdersPage from './pages/OrdersPage';
 import CustomersPage from './pages/CustomersPage';
+import UsersPage from './pages/UsersPage';
+import VendorsPage from './pages/VendorsPage';
+import RolesPage from './pages/RolesPage';
 import SettingsPage from './pages/SettingsPage';
 
 function ProtectedRoute({ children }) {
@@ -49,6 +52,9 @@ export default function App() {
               <Route path="categories" element={<CategoriesPage />} />
               <Route path="orders" element={<OrdersPage />} />
               <Route path="customers" element={<CustomersPage />} />
+              <Route path="users" element={<UsersPage />} />
+              <Route path="vendors" element={<VendorsPage />} />
+              <Route path="roles" element={<RolesPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
 

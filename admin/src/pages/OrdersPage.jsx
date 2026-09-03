@@ -57,35 +57,41 @@ export default function OrdersPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="card" style={{ marginBottom: '1.5rem', padding: '1rem 1.25rem' }}>
+      <div className="card" style={{ marginBottom: '1rem', padding: '0.75rem 1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: 280, position: 'relative' }}>
-            <Search size={18} style={{ position: 'absolute', left: '0.9rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search by order number or customer..."
-              style={{ paddingLeft: '2.5rem', width: '100%', borderRadius: '6px' }}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+          <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', fontWeight: 500 }}>
+            Showing <strong>{filteredOrders.length}</strong> orders
+          </span>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--color-text)' }}>Status:</span>
-            <select
-              className="form-control"
-              style={{ borderRadius: '6px', minWidth: 140, cursor: 'pointer' }}
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="processing">Processing</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+            <div style={{ position: 'relative', width: 280 }}>
+              <Search size={16} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)' }} />
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search by order # or customer..."
+                style={{ paddingLeft: '2.2rem', width: '100%', borderRadius: '6px', fontSize: '0.83rem' }}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontSize: '0.83rem', fontWeight: 600, color: 'var(--color-text)' }}>Status:</span>
+              <select
+                className="form-control"
+                style={{ borderRadius: '6px', minWidth: 130, cursor: 'pointer', fontSize: '0.83rem' }}
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
