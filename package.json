@@ -6,12 +6,14 @@
   "workspaces": [
     "backend",
     "frontend",
+    "admin",
     "file-service"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\" \"npm run dev -w file-service\"",
+    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\" \"npm run dev -w admin\" \"npm run dev -w file-service\"",
     "dev:backend": "npm run dev -w backend",
     "dev:frontend": "npm run dev -w frontend",
+    "dev:admin": "npm run dev -w admin",
     "dev:file-service": "npm run dev -w file-service",
     "build": "npm run build -w frontend",
     "db:init": "npm run db:init -w backend",

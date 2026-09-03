@@ -67,11 +67,13 @@ export async function create(product) {
   const [insertId] = await db('products').insert({
     name: product.name,
     slug: product.slug,
-    description: product.description,
-    base_price: product.price,
-    brand: 'WINVEL',
-    status: (product.isActive ?? true) ? 'active' : 'inactive',
-    featured: product.isFeatured ?? false,
+    short_description: product.short_description || product.shortDescription || null,
+    description: product.description || null,
+    base_price: product.base_price ?? product.price ?? 0,
+    brand: product.brand || 'WINVEL',
+    status: product.status || ((product.isActive ?? true) ? 'active' : 'inactive'),
+    featured: product.featured ?? product.isFeatured ?? false,
+    is_new: product.is_new ?? product.isNew ?? true,
   });
 
   if (product.categoryId) {
@@ -82,10 +84,10 @@ export async function create(product) {
   }
 
   // Seed primary product image if URL is supplied
-  if (product.imageUrl) {
+  if (product.imageUrl || product.image_url) {
     await db('product_images').insert({
       product_id: insertId,
-      image_url: product.imageUrl,
+      image_url: product.imageUrl || product.image_url,
       is_primary: true
     });
   }
@@ -94,16 +96,28 @@ export async function create(product) {
 }
 
 export async function update(id, product) {
-  await db('products')
-    .where({ id })
-    .update({
-      name: product.name,
-      slug: product.slug,
-      description: product.description,
-      base_price: product.price,
-      status: (product.isActive ?? true) ? 'active' : 'inactive',
-      featured: product.isFeatured ?? false,
-    });
+  const updatePayload = {};
+  if (product.name !== undefined) updatePayload.name = product.name;
+  if (product.slug !== undefined) updatePayload.slug = product.slug;
+  if (product.short_description !== undefined || product.shortDescription !== undefined) {
+    updatePayload.short_description = product.short_description ?? product.shortDescription;
+  }
+  if (product.description !== undefined) updatePayload.description = product.description;
+  if (product.base_price !== undefined || product.price !== undefined) {
+    updatePayload.base_price = product.base_price ?? product.price;
+  }
+  if (product.brand !== undefined) updatePayload.brand = product.brand;
+  if (product.status !== undefined) {
+    updatePayload.status = product.status;
+  } else if (product.isActive !== undefined) {
+    updatePayload.status = product.isActive ? 'active' : 'inactive';
+  }
+  if (product.featured !== undefined) updatePayload.featured = product.featured;
+  if (product.is_new !== undefined) updatePayload.is_new = product.is_new;
+
+  if (Object.keys(updatePayload).length > 0) {
+    await db('products').where({ id }).update(updatePayload);
+  }
 
   if (product.categoryId) {
     await db('product_categories').where({ product_id: id }).delete();
@@ -113,11 +127,11 @@ export async function update(id, product) {
     });
   }
 
-  if (product.imageUrl) {
+  if (product.imageUrl || product.image_url) {
     await db('product_images').where({ product_id: id, is_primary: true }).delete();
     await db('product_images').insert({
       product_id: id,
-      image_url: product.imageUrl,
+      image_url: product.imageUrl || product.image_url,
       is_primary: true
     });
   }

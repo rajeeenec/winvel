@@ -21,7 +21,8 @@ export async function getAllSettings(req, res, next) {
 
 export async function getSettingsByCategory(req, res, next) {
   try {
-    const publicOnly = req.user?.role !== 'admin';
+    const isAdmin = req.user?.role && ['admin', 'super admin'].includes(String(req.user.role).toLowerCase());
+    const publicOnly = !isAdmin;
     const settings = await settingsService.getSettingsByCategory(req.params.category, { publicOnly });
     return success(res, settings);
   } catch (err) {

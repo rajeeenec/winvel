@@ -19,7 +19,13 @@ export function authenticate(req, res, next) {
 
 export function requireRole(...roles) {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    const userRole = req.user?.role ? String(req.user.role).toLowerCase() : '';
+    const allowedRoles = roles.map((r) => String(r).toLowerCase());
+
+    const isAdmin = userRole === 'admin' || userRole === 'super admin';
+    const isAllowed = allowedRoles.some((r) => r === userRole || (r === 'admin' && isAdmin));
+
+    if (!req.user || !isAllowed) {
       return res.status(403).json({ success: false, error: 'Insufficient permissions' });
     }
     next();

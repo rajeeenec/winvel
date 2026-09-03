@@ -4,10 +4,11 @@ import * as productsService from './products.service.js';
 export async function getProducts(req, res, next) {
   try {
     const { categoryId, featured } = req.query;
+    const isAdmin = req.user?.role && ['admin', 'super admin'].includes(String(req.user.role).toLowerCase());
     const products = await productsService.getProducts({
       categoryId: categoryId ? parseInt(categoryId) : undefined,
       featured: featured === 'true',
-      activeOnly: req.user?.role !== 'admin',
+      activeOnly: !isAdmin,
     });
     return success(res, products);
   } catch (err) {

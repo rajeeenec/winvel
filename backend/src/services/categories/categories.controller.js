@@ -3,7 +3,8 @@ import * as categoriesService from './categories.service.js';
 
 export async function getCategories(req, res, next) {
   try {
-    const categories = await categoriesService.getCategories(req.user?.role !== 'admin');
+    const isAdmin = req.user?.role && ['admin', 'super admin'].includes(String(req.user.role).toLowerCase());
+    const categories = await categoriesService.getCategories(!isAdmin);
     return success(res, categories);
   } catch (err) {
     next(err);
