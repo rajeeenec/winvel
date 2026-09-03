@@ -13,6 +13,7 @@ export default function ProductsPage() {
   const [formData, setFormData] = useState({
     name: '',
     slug: '',
+    sku: '',
     short_description: '',
     description: '',
     brand: 'WINVEL',
@@ -42,6 +43,7 @@ export default function ProductsPage() {
     setFormData({
       name: '',
       slug: '',
+      sku: '',
       short_description: '',
       description: '',
       brand: 'WINVEL',
@@ -58,6 +60,7 @@ export default function ProductsPage() {
     setFormData({
       name: product.name || '',
       slug: product.slug || '',
+      sku: product.sku || '',
       short_description: product.short_description || '',
       description: product.description || '',
       brand: product.brand || 'WINVEL',
@@ -98,7 +101,8 @@ export default function ProductsPage() {
 
   const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
-    (p.slug && p.slug.toLowerCase().includes(search.toLowerCase()))
+    (p.slug && p.slug.toLowerCase().includes(search.toLowerCase())) ||
+    (p.sku && p.sku.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -125,7 +129,7 @@ export default function ProductsPage() {
             <input
               type="text"
               className="form-control"
-              placeholder="Search products..."
+              placeholder="Search by name, SKU, slug..."
               style={{ paddingLeft: '2.2rem', width: '100%', fontSize: '0.83rem' }}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -141,6 +145,7 @@ export default function ProductsPage() {
             <tr>
               <th>ID</th>
               <th>Product Name</th>
+              <th>SKU Code</th>
               <th>Brand</th>
               <th>Base Price</th>
               <th>Status</th>
@@ -151,13 +156,13 @@ export default function ProductsPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                   Loading products catalog...
                 </td>
               </tr>
             ) : filteredProducts.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                <td colSpan="8" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                   No products found. Click "Add New Product" to create one.
                 </td>
               </tr>
@@ -168,6 +173,11 @@ export default function ProductsPage() {
                   <td>
                     <div style={{ fontWeight: 600 }}>{p.name}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{p.slug}</div>
+                  </td>
+                  <td>
+                    <span className="badge badge-shipped" style={{ fontFamily: 'monospace', fontWeight: 600, letterSpacing: '0.05em' }}>
+                      {p.sku || `SKU-${p.id}`}
+                    </span>
                   </td>
                   <td>{p.brand || 'WINVEL'}</td>
                   <td style={{ fontWeight: 600 }}>₹{p.base_price}</td>
@@ -229,22 +239,36 @@ export default function ProductsPage() {
                   onChange={(e) => {
                     const name = e.target.value;
                     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-                    setFormData({ ...formData, name, slug: editingProduct ? formData.slug : slug });
+                    const sku = `SKU-${name.substring(0, 3).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+                    setFormData({ ...formData, name, slug: editingProduct ? formData.slug : slug, sku: formData.sku || sku });
                   }}
                   placeholder="e.g. Vintage Oversized Tee"
                 />
               </div>
 
-              <div className="form-group">
-                <label className="form-label">URL Slug</label>
-                <input
-                  type="text"
-                  required
-                  className="form-control"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  placeholder="e.g. vintage-oversized-tee"
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">URL Slug</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-control"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    placeholder="e.g. vintage-oversized-tee"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">SKU Code</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={formData.sku}
+                    onChange={(e) => setFormData({ ...formData, sku: e.target.value.toUpperCase() })}
+                    placeholder="e.g. TEE-BLK-001"
+                  />
+                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

@@ -1,9 +1,28 @@
 import { db } from '../../config/database.js';
 import { resolveFileUrl } from '../../utils/fileResolver.js';
 
+let skuColumnChecked = false;
+async function ensureProductsSkuColumn() {
+  if (skuColumnChecked) return;
+  const hasSku = await db.schema.hasColumn('products', 'sku');
+  if (!hasSku) {
+    await db.schema.table('products', (table) => {
+      table.string('sku', 100).nullable();
+    });
+  }
+  skuColumnChecked = true;
+}
+
 export async function findAll({ categoryId, featured, activeOnly = true } = {}) {
+  await ensureProductsSkuColumn();
+
   const query = db('products as p')
-    .select('p.*', 'c.name as category_name', 'c.id as category_id', 'pi.image_url')
+    .select(
+      'p.*',
+      'c.name as category_name',
+      'c.id as category_id',
+      'pi.image_url'
+    )
     .leftJoin('product_categories as pc', 'p.id', 'pc.product_id')
     .leftJoin('categories as c', 'pc.category_id', 'c.id')
     .leftJoin('product_images as pi', function() {
@@ -21,20 +40,32 @@ export async function findAll({ categoryId, featured, activeOnly = true } = {}) 
   }
 
   const rows = await query.orderBy('p.created_at', 'desc');
+
+  const productMap = new Map();
   for (const row of rows) {
-    // If no primary image from product_images, fallback to base image_url property if any
-    const finalImage = row.image_url || row.image_url_legacy;
-    row.image_url = await resolveFileUrl(finalImage);
-    row.is_active = row.status === 'active';
-    row.is_featured = row.featured === 1 || row.featured === true;
-    row.price = row.base_price;
+    if (!productMap.has(row.id)) {
+      const finalImage = row.image_url || row.image_url_legacy;
+      row.image_url = await resolveFileUrl(finalImage);
+      row.is_active = row.status === 'active';
+      row.is_featured = row.featured === 1 || row.featured === true;
+      row.price = row.base_price;
+      row.sku = row.sku || `SKU-${row.id}`;
+      productMap.set(row.id, row);
+    }
   }
-  return rows;
+
+  return Array.from(productMap.values());
 }
 
 export async function findById(id) {
+  await ensureProductsSkuColumn();
   const row = await db('products as p')
-    .select('p.*', 'c.name as category_name', 'c.id as category_id', 'pi.image_url')
+    .select(
+      'p.*',
+      'c.name as category_name',
+      'c.id as category_id',
+      'pi.image_url'
+    )
     .leftJoin('product_categories as pc', 'p.id', 'pc.product_id')
     .leftJoin('categories as c', 'pc.category_id', 'c.id')
     .leftJoin('product_images as pi', function() {
@@ -49,6 +80,7 @@ export async function findById(id) {
     row.is_active = row.status === 'active';
     row.is_featured = row.featured === 1 || row.featured === true;
     row.price = row.base_price;
+    row.sku = row.sku || `SKU-${row.id}`;
   }
   return row || null;
 }
@@ -64,9 +96,13 @@ export async function findVariantsByProductId(productId) {
 }
 
 export async function create(product) {
+  await ensureProductsSkuColumn();
+  const skuCode = product.sku ? product.sku.trim().toUpperCase() : null;
+
   const [insertId] = await db('products').insert({
     name: product.name,
     slug: product.slug,
+    sku: skuCode,
     short_description: product.short_description || product.shortDescription || null,
     description: product.description || null,
     base_price: product.base_price ?? product.price ?? 0,
@@ -96,9 +132,11 @@ export async function create(product) {
 }
 
 export async function update(id, product) {
+  await ensureProductsSkuColumn();
   const updatePayload = {};
   if (product.name !== undefined) updatePayload.name = product.name;
   if (product.slug !== undefined) updatePayload.slug = product.slug;
+  if (product.sku !== undefined) updatePayload.sku = product.sku ? product.sku.trim().toUpperCase() : null;
   if (product.short_description !== undefined || product.shortDescription !== undefined) {
     updatePayload.short_description = product.short_description ?? product.shortDescription;
   }

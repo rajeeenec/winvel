@@ -16,6 +16,8 @@ import {
   ShieldCheck,
   ChevronDown,
   ChevronRight,
+  Boxes,
+  Boxes as InventoryIcon,
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -24,7 +26,10 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isStockMgmtChildActive = ['/inventory'].includes(location.pathname);
   const isUserMgmtChildActive = ['/users', '/customers', '/vendors'].includes(location.pathname);
+
+  const [isStockMgmtOpen, setIsStockMgmtOpen] = useState(isStockMgmtChildActive);
   const [isUserMgmtOpen, setIsUserMgmtOpen] = useState(isUserMgmtChildActive);
 
   const handleLogout = () => {
@@ -38,9 +43,23 @@ export default function AdminLayout() {
     { label: 'Categories', icon: Tag, path: '/categories' },
     { label: 'Orders', icon: ShoppingBag, path: '/orders' },
     {
+      label: 'Stock Management',
+      icon: Boxes,
+      isParent: true,
+      key: 'stock',
+      isOpen: isStockMgmtOpen,
+      setIsOpen: setIsStockMgmtOpen,
+      children: [
+        { label: 'Inventory', icon: InventoryIcon, path: '/inventory' },
+      ],
+    },
+    {
       label: 'User Management',
       icon: UserCog,
       isParent: true,
+      key: 'users',
+      isOpen: isUserMgmtOpen,
+      setIsOpen: setIsUserMgmtOpen,
       children: [
         { label: 'Users', icon: UserCheck, path: '/users' },
         { label: 'Customers', icon: Users, path: '/customers' },
@@ -77,13 +96,14 @@ export default function AdminLayout() {
           {navItems.map((item) => {
             if (item.isParent) {
               const ParentIcon = item.icon;
-              const isChildActive = ['/users', '/customers', '/vendors'].includes(location.pathname);
+              const childPaths = item.children.map((c) => c.path);
+              const isChildActive = childPaths.includes(location.pathname);
 
               return (
                 <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
                   <button
                     type="button"
-                    onClick={() => setIsUserMgmtOpen(!isUserMgmtOpen)}
+                    onClick={() => item.setIsOpen(!item.isOpen)}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -103,11 +123,11 @@ export default function AdminLayout() {
                       <ParentIcon size={17} />
                       <span>{item.label}</span>
                     </div>
-                    {isUserMgmtOpen ? <ChevronDown size={15} color="var(--color-text-muted)" /> : <ChevronRight size={15} color="var(--color-text-muted)" />}
+                    {item.isOpen ? <ChevronDown size={15} color="var(--color-text-muted)" /> : <ChevronRight size={15} color="var(--color-text-muted)" />}
                   </button>
 
                   {/* Collapsible Sub-menu Items */}
-                  {isUserMgmtOpen && (
+                  {item.isOpen && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', paddingLeft: '1.25rem' }}>
                       {item.children.map((child) => {
                         const ChildIcon = child.icon;

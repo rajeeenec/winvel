@@ -5,6 +5,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProductsPage from './pages/ProductsPage';
+import InventoryPage from './pages/InventoryPage';
 import CategoriesPage from './pages/CategoriesPage';
 import OrdersPage from './pages/OrdersPage';
 import CustomersPage from './pages/CustomersPage';
@@ -48,6 +49,7 @@ export default function App() {
               }
             >
               <Route index element={<DashboardPage />} />
+              <Route path="inventory" element={<InventoryPage />} />
               <Route path="products" element={<ProductsPage />} />
               <Route path="categories" element={<CategoriesPage />} />
               <Route path="orders" element={<OrdersPage />} />
