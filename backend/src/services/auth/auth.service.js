@@ -47,3 +47,17 @@ export async function getProfile(userId) {
   if (!user) throw error('User not found', 404);
   return user;
 }
+
+export async function updateProfile(userId, { name, firstName, lastName, email, phone }) {
+  const user = await authRepo.findUserById(userId);
+  if (!user) throw error('User not found', 404);
+
+  if (email && email.toLowerCase().trim() !== user.email.toLowerCase()) {
+    const existing = await authRepo.findUserByEmail(email);
+    if (existing && existing.id !== userId) {
+      throw error('Email address is already in use', 400);
+    }
+  }
+
+  return authRepo.updateUser(userId, { name, firstName, lastName, email, phone });
+}

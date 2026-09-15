@@ -87,34 +87,13 @@ export default function UserLayout() {
 
             {/* Profile Dropdown */}
             <div className="profile-menu-container">
-              <button className="action-btn" onClick={() => setShowProfileDropdown(!showProfileDropdown)} title="Account">
+              <Link to={user ? "/account" : "/login"} className="action-btn" title="My Account">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-              </button>
-              {showProfileDropdown && (
-                <div className="profile-dropdown">
-                  {user ? (
-                    <>
-                      <div className="dropdown-user-info">
-                        <span className="dropdown-username">Hi, {user.first_name}</span>
-                        <span className="dropdown-email">{user.email}</span>
-                      </div>
-                      <hr />
-                      {isAdmin && <Link to="/admin" className="dropdown-item" onClick={() => setShowProfileDropdown(false)}>Admin Dashboard</Link>}
-                      <Link to="/orders" className="dropdown-item" onClick={() => setShowProfileDropdown(false)}>My Orders</Link>
-                      <button onClick={() => { logout(); setShowProfileDropdown(false); }} className="dropdown-item logout-btn">Logout</button>
-                    </>
-                  ) : (
-                    <>
-                      <Link to="/login" className="dropdown-item" onClick={() => setShowProfileDropdown(false)}>Login</Link>
-                      <Link to="/register" className="dropdown-item" onClick={() => setShowProfileDropdown(false)}>Sign Up</Link>
-                    </>
-                  )}
-                </div>
-              )}
+              </Link>
             </div>
 
             {/* Wishlist Link */}
-            <Link to="/shop" className="action-btn badge-btn" title="Wishlist">
+            <Link to="/account?tab=wishlist" className="action-btn badge-btn" title="Wishlist">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
               <span className="badge-count">{wishlistCount}</span>
             </Link>

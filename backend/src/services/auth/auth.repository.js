@@ -77,8 +77,27 @@ export async function createUser({ email, passwordHash, name, firstName, lastNam
     phone: phone || null,
     google_id: googleId || null,
     role_id: roleId,
-    status: 'active'
+    status: 'active',
   });
   return findUserById(insertId);
 }
 
+export async function updateUser(id, { name, firstName, lastName, email, phone }) {
+  await ensureUsersGoogleIdColumn();
+  const payload = {};
+  if (name !== undefined || firstName !== undefined) {
+    payload.first_name = (name || `${firstName || ''} ${lastName || ''}`).trim();
+    payload.last_name = null;
+  }
+  if (email !== undefined && email) {
+    payload.email = email.toLowerCase().trim();
+  }
+  if (phone !== undefined) {
+    payload.phone = phone ? phone.trim() : null;
+  }
+
+  if (Object.keys(payload).length > 0) {
+    await db('users').where({ id }).update(payload);
+  }
+  return findUserById(id);
+}

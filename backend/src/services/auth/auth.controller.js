@@ -36,3 +36,12 @@ export async function getProfile(req, res, next) {
     next(err);
   }
 }
+
+export async function updateProfile(req, res, next) {
+  try {
+    const user = await authService.updateProfile(req.user.id, req.body);
+    return success(res, user);
+  } catch (err) {
+    next(err);
+  }
+}

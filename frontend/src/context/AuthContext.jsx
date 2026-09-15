@@ -38,10 +38,17 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  const updateProfile = async (profileData) => {
+    const res = await api.put('/auth/profile', profileData);
+    const updatedUser = res.data || res.user || res;
+    setUser(updatedUser);
+    return updatedUser;
+  };
+
   const isAdmin = user?.role === 'admin';
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateProfile, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );
