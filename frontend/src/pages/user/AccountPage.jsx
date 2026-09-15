@@ -45,20 +45,115 @@ export default function AccountPage() {
     phone: user?.phone || '+91 98765 43210',
   });
 
-  // Mock addresses state
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
+  // Saved addresses state (persisted to localStorage)
+  const [addresses, setAddresses] = useState(() => {
+    const saved = localStorage.getItem('winvel_addresses');
+    if (saved) {
+      try { return JSON.parse(saved); } catch {}
+    }
+    return [
+      {
+        id: 1,
+        type: 'Home',
+        name: user?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Rajkumar S',
+        street: 'Flat 402, Sunshine Apartments, MG Road',
+        city: 'Chennai',
+        state: 'Tamil Nadu',
+        pincode: '600001',
+        phone: user?.phone || '+91 98765 43210',
+        isDefault: true,
+      },
+    ];
+  });
+
+  const [addressModal, setAddressModal] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
+  const [addressFormData, setAddressFormData] = useState({
+    type: 'Home',
+    name: '',
+    phone: '',
+    street: '',
+    city: '',
+    state: '',
+    pincode: '',
+    isDefault: false,
+  });
+
+  const saveAddressesToStorage = (newList) => {
+    setAddresses(newList);
+    localStorage.setItem('winvel_addresses', JSON.stringify(newList));
+  };
+
+  const handleOpenAddAddress = () => {
+    setEditingAddress(null);
+    setAddressFormData({
       type: 'Home',
-      name: user?.name || 'Rajkumar S',
-      street: 'Flat 402, Sunshine Apartments, MG Road',
+      name: profileData.name || '',
+      phone: profileData.phone || '',
+      street: '',
       city: 'Chennai',
       state: 'Tamil Nadu',
-      pincode: '600001',
-      phone: '+91 98765 43210',
-      isDefault: true,
-    },
-  ]);
+      pincode: '',
+      isDefault: addresses.length === 0,
+    });
+    setAddressModal(true);
+  };
+
+  const handleOpenEditAddress = (addr) => {
+    setEditingAddress(addr);
+    setAddressFormData({
+      type: addr.type || 'Home',
+      name: addr.name || '',
+      phone: addr.phone || '',
+      street: addr.street || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      pincode: addr.pincode || '',
+      isDefault: Boolean(addr.isDefault),
+    });
+    setAddressModal(true);
+  };
+
+  const handleSaveAddress = (e) => {
+    e.preventDefault();
+    if (!addressFormData.name.trim() || !addressFormData.street.trim() || !addressFormData.city.trim() || !addressFormData.pincode.trim()) {
+      alert('Please fill in all required address fields.');
+      return;
+    }
+
+    let nextList;
+    if (editingAddress) {
+      nextList = addresses.map((a) =>
+        a.id === editingAddress.id ? { ...a, ...addressFormData } : a
+      );
+    } else {
+      const newAddr = {
+        id: Date.now(),
+        ...addressFormData,
+      };
+      nextList = [...addresses, newAddr];
+    }
+
+    if (addressFormData.isDefault || nextList.length === 1) {
+      const targetId = editingAddress ? editingAddress.id : nextList[nextList.length - 1].id;
+      nextList = nextList.map((a) => ({
+        ...a,
+        isDefault: a.id === targetId,
+      }));
+    }
+
+    saveAddressesToStorage(nextList);
+    setAddressModal(false);
+  };
+
+  const handleDeleteAddress = (id) => {
+    if (!window.confirm('Are you sure you want to delete this address?')) return;
+    const nextList = addresses.filter((a) => a.id !== id);
+    if (nextList.length > 0 && !nextList.some((a) => a.isDefault)) {
+      nextList[0].isDefault = true;
+    }
+    saveAddressesToStorage(nextList);
+  };
 
   useEffect(() => {
     if (user) {
@@ -520,27 +615,38 @@ export default function AccountPage() {
                   <h1 className="main-heading">Saved Addresses</h1>
                   <p className="sub-heading">Manage your delivery addresses for fast checkout</p>
                 </div>
-                <button type="button" className="btn btn-black-sm">+ Add New Address</button>
+                <button type="button" className="btn btn-black-sm" onClick={handleOpenAddAddress}>
+                  + Add New Address
+                </button>
               </div>
 
-              <div className="addresses-grid">
-                {addresses.map((addr) => (
-                  <div key={addr.id} className="address-card">
-                    <div className="addr-header">
-                      <span className="addr-tag">{addr.type}</span>
-                      {addr.isDefault && <span className="default-pill">Default</span>}
-                    </div>
-                    <h4 className="addr-name">{addr.name}</h4>
-                    <p className="addr-text">{addr.street}, {addr.city}, {addr.state} - {addr.pincode}</p>
-                    <p className="addr-phone">Phone: {addr.phone}</p>
+              {addresses.length === 0 ? (
+                <div style={{ background: '#FFF', border: '1px solid #EAE5DD', borderRadius: '16px', padding: '40px', textAlign: 'center' }}>
+                  <p style={{ color: '#666', marginBottom: '16px' }}>You don't have any saved delivery addresses yet.</p>
+                  <button type="button" className="btn btn-black-sm" onClick={handleOpenAddAddress}>
+                    + Add Your First Address
+                  </button>
+                </div>
+              ) : (
+                <div className="addresses-grid">
+                  {addresses.map((addr) => (
+                    <div key={addr.id} className="address-card">
+                      <div className="addr-header">
+                        <span className="addr-tag">{addr.type}</span>
+                        {addr.isDefault && <span className="default-pill">Default</span>}
+                      </div>
+                      <h4 className="addr-name">{addr.name}</h4>
+                      <p className="addr-text">{addr.street}, {addr.city}, {addr.state} - {addr.pincode}</p>
+                      <p className="addr-phone">Phone: {addr.phone}</p>
 
-                    <div className="addr-actions">
-                      <button type="button" className="link-btn">Edit</button>
-                      <button type="button" className="link-btn danger-link">Delete</button>
+                      <div className="addr-actions">
+                        <button type="button" className="link-btn" onClick={() => handleOpenEditAddress(addr)}>Edit</button>
+                        <button type="button" className="link-btn danger-link" onClick={() => handleDeleteAddress(addr.id)}>Delete</button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -655,10 +761,129 @@ export default function AccountPage() {
                 />
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setEditProfileModal(false)}>Cancel</button>
+                <button type="button" className="btn btn-modal-cancel" onClick={() => setEditProfileModal(false)}>Cancel</button>
                 <button type="submit" className="btn btn-black" disabled={savingProfile}>
                   {savingProfile ? 'Saving...' : 'Save Profile'}
                 </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add / Edit Address Modal */}
+      {addressModal && (
+        <div className="modal-overlay" onClick={() => setAddressModal(false)}>
+          <div className="modal-card" onClick={(e) => e.stopPropagation()} style={{ width: 520 }}>
+            <div className="modal-header">
+              <h2>{editingAddress ? 'Edit Address' : 'Add New Address'}</h2>
+              <button type="button" className="close-btn" onClick={() => setAddressModal(false)}>✕</button>
+            </div>
+            <form onSubmit={handleSaveAddress}>
+              <div className="form-group">
+                <label className="form-label">Address Tag</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {['Home', 'Work', 'Other'].map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      className={`btn btn-sm ${addressFormData.type === t ? 'btn-black-sm' : 'btn-outline-sm'}`}
+                      onClick={() => setAddressFormData({ ...addressFormData, type: t })}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-control"
+                    value={addressFormData.name}
+                    onChange={(e) => setAddressFormData({ ...addressFormData, name: e.target.value })}
+                    placeholder="e.g. Rajkumar S"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Phone Number</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-control"
+                    value={addressFormData.phone}
+                    onChange={(e) => setAddressFormData({ ...addressFormData, phone: e.target.value })}
+                    placeholder="+91 98765 43210"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Street Address (House No, Flat, Street, Area)</label>
+                <input
+                  type="text"
+                  required
+                  className="form-control"
+                  value={addressFormData.street}
+                  onChange={(e) => setAddressFormData({ ...addressFormData, street: e.target.value })}
+                  placeholder="Flat 402, Sunshine Apartments, MG Road"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
+                <div className="form-group">
+                  <label className="form-label">City</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-control"
+                    value={addressFormData.city}
+                    onChange={(e) => setAddressFormData({ ...addressFormData, city: e.target.value })}
+                    placeholder="Chennai"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">State</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-control"
+                    value={addressFormData.state}
+                    onChange={(e) => setAddressFormData({ ...addressFormData, state: e.target.value })}
+                    placeholder="Tamil Nadu"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Pincode</label>
+                  <input
+                    type="text"
+                    required
+                    className="form-control"
+                    value={addressFormData.pincode}
+                    onChange={(e) => setAddressFormData({ ...addressFormData, pincode: e.target.value })}
+                    placeholder="600001"
+                  />
+                </div>
+              </div>
+
+              <label className="form-checkbox-group">
+                <input
+                  type="checkbox"
+                  checked={addressFormData.isDefault}
+                  onChange={(e) => setAddressFormData({ ...addressFormData, isDefault: e.target.checked })}
+                />
+                <span>Set as default delivery address</span>
+              </label>
+
+              <div className="modal-footer">
+                <button type="button" className="btn btn-modal-cancel" onClick={() => setAddressModal(false)}>Cancel</button>
+                <button type="submit" className="btn btn-black">Save Address</button>
               </div>
             </form>
           </div>
