@@ -16,11 +16,12 @@ export async function register(req, res, next) {
 
 export async function login(req, res, next) {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ success: false, error: 'Email and password are required' });
+    const { email, identifier, password } = req.body;
+    const loginId = identifier || email;
+    if (!loginId || !password) {
+      return res.status(400).json({ success: false, error: 'Email / Mobile number and password are required' });
     }
-    const result = await authService.login({ email, password });
+    const result = await authService.login({ identifier: loginId, password });
     return success(res, result);
   } catch (err) {
     next(err);

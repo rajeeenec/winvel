@@ -123,3 +123,11 @@ export async function updateStatus(id, isActive) {
     .update({ status: status });
   return findById(id);
 }
+
+export async function updatePassword(id, passwordHash) {
+  await db('users')
+    .where({ id })
+    .update({ password_hash: passwordHash });
+  return findById(id);
+}
+

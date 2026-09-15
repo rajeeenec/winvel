@@ -47,3 +47,14 @@ export async function toggleUserStatus(req, res, next) {
     next(err);
   }
 }
+
+export async function updatePassword(req, res, next) {
+  try {
+    const { password } = req.body;
+    const user = await usersService.updatePassword(parseInt(req.params.id), password);
+    return success(res, { message: 'Password updated successfully', user });
+  } catch (err) {
+    next(err);
+  }
+}
+

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Users, ShoppingBag, DollarSign, ToggleLeft, ToggleRight, X, Check, Edit3, AlertCircle } from 'lucide-react';
+import { Plus, Search, Users, ShoppingBag, DollarSign, Key, ToggleLeft, ToggleRight, X, Check, Edit3, AlertCircle } from 'lucide-react';
 import api from '../services/api';
+import UpdatePasswordModal from '../components/UpdatePasswordModal';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[0-9+\s\-()]{7,15}$/;
@@ -11,6 +12,7 @@ export default function CustomersPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
+  const [passwordModalCustomer, setPasswordModalCustomer] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   // Form state
@@ -246,7 +248,7 @@ export default function CustomersPage() {
                     <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{u.phone || 'N/A'}</td>
                     <td>
                       <span className="badge badge-shipped" style={{ fontWeight: 600 }}>
-                        {u.order_count} order{u.order_count === 1 ? '' : 's'}
+                        {u.order_count ?? 0}
                       </span>
                     </td>
                     <td style={{ fontWeight: 700, color: 'var(--color-text)' }}>
@@ -268,6 +270,13 @@ export default function CustomersPage() {
                           title="Edit customer details"
                         >
                           <Edit3 size={14} />
+                        </button>
+                        <button
+                          onClick={() => setPasswordModalCustomer(u)}
+                          className="btn btn-secondary btn-sm"
+                          title="Update customer password"
+                        >
+                          <Key size={14} />
                         </button>
                         <button
                           onClick={() => handleToggleStatus(u)}
@@ -372,6 +381,13 @@ export default function CustomersPage() {
           </div>
         </div>
       )}
+      {/* Update Password Modal */}
+      <UpdatePasswordModal
+        isOpen={!!passwordModalCustomer}
+        user={passwordModalCustomer}
+        onClose={() => setPasswordModalCustomer(null)}
+        onSuccess={fetchCustomers}
+      />
     </div>
   );
 }

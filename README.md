@@ -182,3 +182,13 @@ npm run db:seed
 Run specific seed file 
 
 npm run db:seed -- 001_category_seed
+
+
+
+task pid find command 
+
+netstat -ano | grep :5000
+
+kill command
+
+taskkill //PID 14180 //F

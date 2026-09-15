@@ -14,3 +14,13 @@ export async function getCategoryById(id) {
   if (!category) throw error('Category not found', 404);
   return category;
 }
+
+export async function updateCategory(id, data) {
+  await getCategoryById(id);
+  return categoriesRepo.update(id, data);
+}
+
+export async function deleteCategory(id) {
+  await getCategoryById(id);
+  return categoriesRepo.remove(id);
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, ShieldCheck, UserCheck, Lock, ToggleLeft, ToggleRight, X, Check, Edit3, AlertCircle } from 'lucide-react';
+import { Plus, Search, ShieldCheck, UserCheck, Lock, Key, ToggleLeft, ToggleRight, X, Check, Edit3, AlertCircle } from 'lucide-react';
 import api from '../services/api';
+import UpdatePasswordModal from '../components/UpdatePasswordModal';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[0-9+\s\-()]{7,15}$/;
@@ -12,6 +13,7 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [passwordModalUser, setPasswordModalUser] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   // Form state
@@ -283,6 +285,13 @@ export default function UsersPage() {
                           <Edit3 size={14} />
                         </button>
                         <button
+                          onClick={() => setPasswordModalUser(user)}
+                          className="btn btn-secondary btn-sm"
+                          title="Update user password"
+                        >
+                          <Key size={14} />
+                        </button>
+                        <button
                           onClick={() => handleToggleStatus(user)}
                           className={`btn ${user.is_active ? 'btn-danger' : 'btn-secondary'} btn-sm`}
                           title={user.is_active ? 'Block user account' : 'Activate user account'}
@@ -402,6 +411,13 @@ export default function UsersPage() {
           </div>
         </div>
       )}
+      {/* Update Password Modal */}
+      <UpdatePasswordModal
+        isOpen={!!passwordModalUser}
+        user={passwordModalUser}
+        onClose={() => setPasswordModalUser(null)}
+        onSuccess={fetchData}
+      />
     </div>
   );
 }

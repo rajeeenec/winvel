@@ -49,8 +49,9 @@ export default function RolesPage() {
         { id: 6, name: 'orders.manage', module: 'Orders', action: 'Update Order Status' },
         { id: 7, name: 'categories.manage', module: 'Categories', action: 'Manage Categories' },
         { id: 8, name: 'customers.view', module: 'Customers', action: 'View Customers' },
-        { id: 9, name: 'settings.manage', module: 'Settings', action: 'Manage Store & Theme Settings' },
-        { id: 10, name: 'roles.manage', module: 'Roles', action: 'Manage Roles & Access Control' },
+        { id: 9, name: 'users.update_password', module: 'User Management', action: 'Update User Passwords' },
+        { id: 10, name: 'settings.manage', module: 'Settings', action: 'Manage Store & Theme Settings' },
+        { id: 11, name: 'roles.manage', module: 'Roles', action: 'Manage Roles & Access Control' },
       ]);
     } catch {
       // Fallback

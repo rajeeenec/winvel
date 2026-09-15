@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { Plus, Search, Edit3, Trash2, CheckCircle, XCircle, Package } from 'lucide-react';
 import api from '../services/api';
 
+const ALL_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
+
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -21,6 +24,10 @@ export default function ProductsPage() {
     status: 'active',
     featured: false,
     is_new: true,
+    sizes: ['S', 'M', 'L', 'XL'],
+    size_chart_url: '',
+    categoryId: '',
+    fitting_options: ['Regular', 'Slim'],
   });
 
   const fetchProducts = () => {
@@ -36,6 +43,12 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchProducts();
+    api.get('/categories')
+      .then((data) => {
+        const catList = data.data || data.categories || (Array.isArray(data) ? data : []);
+        setCategories(catList);
+      })
+      .catch(() => setCategories([]));
   }, []);
 
   const handleOpenAdd = () => {
@@ -51,12 +64,19 @@ export default function ProductsPage() {
       status: 'active',
       featured: false,
       is_new: true,
+      sizes: ['S', 'M', 'L', 'XL'],
+      size_chart_url: '',
+      categoryId: categories[0]?.id || '',
+      fitting_options: [],
     });
     setShowAddModal(true);
   };
 
   const handleOpenEdit = (product) => {
     setEditingProduct(product);
+    const existingSizes = product.sizes && product.sizes.length > 0
+      ? product.sizes
+      : (product.variants ? Array.from(new Set(product.variants.map((v) => v.size).filter(Boolean))) : ['S', 'M', 'L', 'XL']);
     setFormData({
       name: product.name || '',
       slug: product.slug || '',
@@ -68,6 +88,10 @@ export default function ProductsPage() {
       status: product.status || 'active',
       featured: product.featured || false,
       is_new: product.is_new || false,
+      sizes: existingSizes.length > 0 ? existingSizes : ['S', 'M', 'L', 'XL'],
+      size_chart_url: product.size_chart_url || '',
+      categoryId: product.category_id || '',
+      fitting_options: product.fitting_options || [],
     });
     setShowAddModal(true);
   };
@@ -286,17 +310,33 @@ export default function ProductsPage() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Status</label>
+                  <label className="form-label">Category</label>
                   <select
                     className="form-control"
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    value={formData.categoryId}
+                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
                   >
-                    <option value="active">Active</option>
-                    <option value="draft">Draft</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="">-- Select Category --</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} {!c.has_fitting ? '(No Fit Options)' : ''}
+                      </option>
+                    ))}
                   </select>
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Status</label>
+                <select
+                  className="form-control"
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                >
+                  <option value="active">Active</option>
+                  <option value="draft">Draft</option>
+                  <option value="inactive">Inactive</option>
+                </select>
               </div>
 
               <div className="form-group">
@@ -319,6 +359,117 @@ export default function ProductsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Detailed product information..."
                 ></textarea>
+              </div>
+
+              <div className="form-group" style={{ marginTop: '0.75rem' }}>
+                <label className="form-label">Available Sizes</label>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.25rem' }}>
+                  {ALL_SIZES.map((sz) => {
+                    const checked = formData.sizes?.includes(sz);
+                    return (
+                      <label
+                        key={sz}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          padding: '0.35rem 0.65rem',
+                          border: checked ? '1.5px solid #111' : '1px solid #ccc',
+                          borderRadius: '6px',
+                          background: checked ? '#f0f4f8' : '#fff',
+                          cursor: 'pointer',
+                          fontSize: '0.85rem',
+                          fontWeight: checked ? '600' : 'normal',
+                          userSelect: 'none',
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            const newSizes = e.target.checked
+                              ? [...(formData.sizes || []), sz]
+                              : (formData.sizes || []).filter((s) => s !== sz);
+                            setFormData({ ...formData, sizes: newSizes });
+                          }}
+                        />
+                        {sz}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Fitting Options Section (Category Dependent) */}
+              {(() => {
+                const selectedCatObj = categories.find((c) => String(c.id) === String(formData.categoryId));
+                const isFittingApplicable = selectedCatObj ? (selectedCatObj.has_fitting !== false) : true;
+
+                if (!isFittingApplicable) {
+                  return (
+                    <div style={{ padding: '0.65rem 0.85rem', background: '#F9FAFB', border: '1px solid var(--color-border)', color: '#6B7280', borderRadius: '6px', fontSize: '0.82rem', marginTop: '0.75rem' }}>
+                      ℹ️ Fit options (Regular / Slim) are disabled for category <strong>{selectedCatObj?.name}</strong>.
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="form-group" style={{ marginTop: '0.75rem' }}>
+                    <label className="form-label">Available Fit Option (Select one or None)</label>
+                    <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem' }}>
+                      {[
+                        { label: 'None', value: '' },
+                        { label: 'Regular Fit', value: 'Regular' },
+                        { label: 'Slim Fit', value: 'Slim' },
+                      ].map((opt) => {
+                        const selectedValue = (formData.fitting_options || [])[0] || '';
+                        const checked = selectedValue === opt.value;
+                        return (
+                          <label
+                            key={opt.label}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.4rem',
+                              padding: '0.4rem 0.8rem',
+                              border: checked ? '1.5px solid #111' : '1px solid #ccc',
+                              borderRadius: '6px',
+                              background: checked ? '#f0f4f8' : '#fff',
+                              cursor: 'pointer',
+                              fontSize: '0.85rem',
+                              fontWeight: checked ? '600' : 'normal',
+                              userSelect: 'none',
+                            }}
+                          >
+                            <input
+                              type="radio"
+                              name="fitting_option_single"
+                              checked={checked}
+                              onChange={() => {
+                                setFormData({
+                                  ...formData,
+                                  fitting_options: opt.value ? [opt.value] : [],
+                                });
+                              }}
+                            />
+                            {opt.label}
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              <div className="form-group" style={{ marginTop: '0.75rem' }}>
+                <label className="form-label">Size Chart Image URL (Optional)</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={formData.size_chart_url}
+                  onChange={(e) => setFormData({ ...formData, size_chart_url: e.target.value })}
+                  placeholder="e.g. https://images.unsplash.com/photo-1598033129183-c4f50c736f10 or /uploads/size-chart.png"
+                />
               </div>
 
               <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1rem' }}>

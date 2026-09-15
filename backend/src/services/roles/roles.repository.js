@@ -41,27 +41,28 @@ export async function findById(id) {
 export async function findAllPermissions() {
   let permissions = await db('permissions').select('*').orderBy(['module', 'name']);
   
-  // If permissions table is empty, seed default permissions
-  if (permissions.length === 0) {
-    const defaultPermissions = [
-      { name: 'products.view', module: 'Products', action: 'View Products' },
-      { name: 'products.create', module: 'Products', action: 'Create Product' },
-      { name: 'products.edit', module: 'Products', action: 'Edit Product' },
-      { name: 'products.delete', module: 'Products', action: 'Delete Product' },
-      { name: 'orders.view', module: 'Orders', action: 'View Orders' },
-      { name: 'orders.manage', module: 'Orders', action: 'Update Order Status' },
-      { name: 'categories.manage', module: 'Categories', action: 'Manage Categories' },
-      { name: 'customers.view', module: 'Customers', action: 'View Customers' },
-      { name: 'settings.manage', module: 'Settings', action: 'Manage Settings & Theme' },
-      { name: 'roles.manage', module: 'Roles', action: 'Manage Roles & Access Control' },
-    ];
+  const defaultPermissions = [
+    { name: 'products.view', module: 'Products', action: 'View Products' },
+    { name: 'products.create', module: 'Products', action: 'Create Product' },
+    { name: 'products.edit', module: 'Products', action: 'Edit Product' },
+    { name: 'products.delete', module: 'Products', action: 'Delete Product' },
+    { name: 'orders.view', module: 'Orders', action: 'View Orders' },
+    { name: 'orders.manage', module: 'Orders', action: 'Update Order Status' },
+    { name: 'categories.manage', module: 'Categories', action: 'Manage Categories' },
+    { name: 'customers.view', module: 'Customers', action: 'View Customers' },
+    { name: 'users.update_password', module: 'User Management', action: 'Update User Passwords' },
+    { name: 'settings.manage', module: 'Settings', action: 'Manage Settings & Theme' },
+    { name: 'roles.manage', module: 'Roles', action: 'Manage Roles & Access Control' },
+  ];
 
-    for (const perm of defaultPermissions) {
+  const existingNames = new Set(permissions.map((p) => p.name));
+  for (const perm of defaultPermissions) {
+    if (!existingNames.has(perm.name)) {
       await db('permissions').insert(perm);
     }
-    permissions = await db('permissions').select('*').orderBy(['module', 'name']);
   }
 
+  permissions = await db('permissions').select('*').orderBy(['module', 'name']);
   return permissions;
 }
 

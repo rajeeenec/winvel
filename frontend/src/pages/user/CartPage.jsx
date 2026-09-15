@@ -37,7 +37,7 @@ export default function CartPage() {
         {/* Left Side: Items List */}
         <div className="cart-items-list">
           {cart.map((item) => (
-            <div key={`${item.product.id}-${item.variant.id}`} className="cart-item-card">
+            <div key={`${item.product.id}-${item.variant.id}-${item.fitting || 'default'}`} className="cart-item-card">
               <div className="cart-item-image">
                 <img src={item.product.image_url} alt={item.product.name} />
               </div>
@@ -46,7 +46,10 @@ export default function CartPage() {
                   <Link to={`/product/${item.product.id}`}>{item.product.name}</Link>
                 </h3>
                 <p className="cart-item-variant">
-                  Size: <strong>{item.variant.size}</strong> | Color: <strong>{item.variant.color}</strong>
+                  {item.fitting && (
+                    <>Fit: <strong>{item.fitting} Fit</strong> | </>
+                  )}
+                  Size: <strong>{item.variant.size}</strong>{item.variant.color ? <> | Color: <strong>{item.variant.color}</strong></> : ''}
                 </p>
                 <div className="cart-item-price">₹{Math.round(item.product.price)}</div>
               </div>
@@ -54,7 +57,7 @@ export default function CartPage() {
                 <button
                   type="button"
                   className="qty-btn"
-                  onClick={() => updateQuantity(item.product.id, item.variant.id, item.quantity - 1)}
+                  onClick={() => updateQuantity(item.product.id, item.variant.id, item.quantity - 1, item.fitting)}
                 >
                   -
                 </button>
@@ -62,7 +65,7 @@ export default function CartPage() {
                 <button
                   type="button"
                   className="qty-btn"
-                  onClick={() => updateQuantity(item.product.id, item.variant.id, item.quantity + 1)}
+                  onClick={() => updateQuantity(item.product.id, item.variant.id, item.quantity + 1, item.fitting)}
                 >
                   +
                 </button>
@@ -73,7 +76,7 @@ export default function CartPage() {
               <button
                 type="button"
                 className="cart-item-remove-btn"
-                onClick={() => removeFromCart(item.product.id, item.variant.id)}
+                onClick={() => removeFromCart(item.product.id, item.variant.id, item.fitting)}
                 title="Remove Item"
               >
                 ✕

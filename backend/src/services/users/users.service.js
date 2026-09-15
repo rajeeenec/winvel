@@ -93,3 +93,17 @@ export async function toggleUserStatus(id, isActive) {
   if (!existing) throw error('User not found', 404);
   return usersRepo.updateStatus(id, isActive);
 }
+
+export async function updatePassword(id, newPassword) {
+  const existing = await usersRepo.findById(id);
+  if (!existing) throw error('User not found', 404);
+
+  if (!newPassword || newPassword.length < 6) {
+    throw error('New password is required and must be at least 6 characters long', 400);
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const passwordHash = await bcrypt.hash(newPassword, salt);
+  return usersRepo.updatePassword(id, passwordHash);
+}
+

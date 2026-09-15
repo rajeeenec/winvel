@@ -21,10 +21,10 @@ export function CartProvider({ children }) {
     localStorage.setItem('winvel_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
-  const addToCart = (product, variant, quantity = 1) => {
+  const addToCart = (product, variant, quantity = 1, fitting = null) => {
     setCart((prev) => {
       const existingIdx = prev.findIndex(
-        (item) => item.product.id === product.id && item.variant.id === variant.id
+        (item) => item.product.id === product.id && item.variant.id === variant.id && (item.fitting || null) === (fitting || null)
       );
 
       if (existingIdx > -1) {
@@ -33,26 +33,26 @@ export function CartProvider({ children }) {
         return next;
       }
 
-      return [...prev, { product, variant, quantity }];
+      return [...prev, { product, variant, quantity, fitting }];
     });
   };
 
-  const removeFromCart = (productId, variantId) => {
+  const removeFromCart = (productId, variantId, fitting = null) => {
     setCart((prev) =>
       prev.filter(
-        (item) => !(item.product.id === productId && item.variant.id === variantId)
+        (item) => !(item.product.id === productId && item.variant.id === variantId && (item.fitting || null) === (fitting || null))
       )
     );
   };
 
-  const updateQuantity = (productId, variantId, quantity) => {
+  const updateQuantity = (productId, variantId, quantity, fitting = null) => {
     if (quantity <= 0) {
-      removeFromCart(productId, variantId);
+      removeFromCart(productId, variantId, fitting);
       return;
     }
     setCart((prev) =>
       prev.map((item) =>
-        item.product.id === productId && item.variant.id === variantId
+        item.product.id === productId && item.variant.id === variantId && (item.fitting || null) === (fitting || null)
           ? { ...item, quantity }
           : item
       )

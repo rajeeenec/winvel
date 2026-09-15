@@ -29,8 +29,9 @@ export async function register({ email, password, firstName, lastName, phone }) 
   return { user, token };
 }
 
-export async function login({ email, password }) {
-  const user = await authRepo.findUserByEmail(email);
+export async function login({ email, identifier, password }) {
+  const loginId = identifier || email;
+  const user = await authRepo.findUserByEmailOrPhone(loginId);
   if (!user || !user.is_active) throw error('Invalid credentials', 401);
 
   const valid = await bcrypt.compare(password, user.password_hash);

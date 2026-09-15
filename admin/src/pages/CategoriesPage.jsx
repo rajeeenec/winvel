@@ -15,6 +15,7 @@ export default function CategoriesPage() {
     description: '',
     sort_order: 0,
     status: true,
+    has_fitting: true,
   });
 
   const fetchCategories = () => {
@@ -40,6 +41,7 @@ export default function CategoriesPage() {
       description: '',
       sort_order: categories.length + 1,
       status: true,
+      has_fitting: true,
     });
     setShowAddModal(true);
   };
@@ -52,6 +54,7 @@ export default function CategoriesPage() {
       description: cat.description || '',
       sort_order: cat.sort_order || 0,
       status: cat.status !== undefined ? Boolean(cat.status) : true,
+      has_fitting: cat.has_fitting !== undefined ? Boolean(cat.has_fitting) : true,
     });
     setShowAddModal(true);
   };
@@ -129,6 +132,7 @@ export default function CategoriesPage() {
               <th>ID</th>
               <th>Category Name</th>
               <th>Slug</th>
+              <th>Fit Options</th>
               <th>Sort Order</th>
               <th>Status</th>
               <th>Actions</th>
@@ -137,13 +141,13 @@ export default function CategoriesPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                   Loading categories...
                 </td>
               </tr>
             ) : filteredCategories.length === 0 ? (
               <tr>
-                <td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
                   No categories found. Click "Add New Category" to create one.
                 </td>
               </tr>
@@ -153,6 +157,11 @@ export default function CategoriesPage() {
                   <td style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>#{cat.id}</td>
                   <td style={{ fontWeight: 600 }}>{cat.name}</td>
                   <td style={{ color: 'var(--accent-primary)', fontSize: '0.85rem' }}>{cat.slug}</td>
+                  <td>
+                    <span className={`badge ${cat.has_fitting ? 'badge-active' : 'badge-inactive'}`}>
+                      {cat.has_fitting ? 'Regular / Slim' : 'No Fit Options'}
+                    </span>
+                  </td>
                   <td>{cat.sort_order}</td>
                   <td>
                     <span className={`badge badge-${cat.status ? 'active' : 'inactive'}`}>
@@ -244,6 +253,20 @@ export default function CategoriesPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Short description for category..."
                 ></textarea>
+              </div>
+
+              <div className="form-group" style={{ marginTop: '0.75rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.has_fitting}
+                    onChange={(e) => setFormData({ ...formData, has_fitting: e.target.checked })}
+                  />
+                  <span>Enable Fit Options (Regular / Slim Fit)</span>
+                </label>
+                <span style={{ display: 'block', fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.2rem', paddingLeft: '1.4rem' }}>
+                  Uncheck for categories like Accessories or Shoes where fit options (Regular/Slim) do not apply.
+                </span>
               </div>
 
               <div className="modal-footer">
