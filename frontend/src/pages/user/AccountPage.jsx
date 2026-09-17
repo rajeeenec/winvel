@@ -219,18 +219,21 @@ export default function AccountPage() {
     },
   ];
 
-  const displayOrders = orders.length > 0
-    ? orders.map((o) => ({
-        id: o.id,
-        order_number: o.order_number || `#WINVL-${o.id}`,
-        date: new Date(o.created_at || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-        itemsCount: o.items_count || 1,
-        total: o.total || o.base_price || 699,
-        status: o.status || 'Processing',
-        deliveryInfo: o.status === 'delivered' ? 'Delivered successfully' : 'Processing your shipment',
-        image: o.image_url || '/images/category_basics.png',
-      }))
-    : sampleRecentOrders;
+  const displayOrders = orders.map((o) => ({
+    id: o.id,
+    order_number: o.order_number || `#WINVL-${o.id}`,
+    date: new Date(o.created_at || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+    itemsCount: o.items ? o.items.length : (o.items_count || 1),
+    total: Number(o.total_amount || o.total || 0),
+    status: o.status || o.order_status || 'pending',
+    paymentMethod: (o.payment_method || 'cod').toUpperCase(),
+    deliveryInfo: o.address
+      ? `${o.address.full_name} • ${o.address.city}, ${o.address.state}`
+      : (o.status === 'delivered' ? 'Delivered successfully' : `Status: ${o.status || 'pending'}`),
+    image: o.items?.[0]?.image_url || '/images/products/product_black.png',
+    items: o.items || [],
+    address: o.address,
+  }));
 
   const sampleWishlist = [
     { id: 1, name: 'WINVEL Oversized T-Shirt - Black', price: 699, image_url: '/images/category_men.png', size: 'L', color: 'Black' },
@@ -444,30 +447,39 @@ export default function AccountPage() {
                 </div>
 
                 <div className="orders-list">
-                  {displayOrders.map((ord) => (
-                    <div key={ord.id} className="order-item-card">
-                      <div className="order-left-info">
-                        <img src={ord.image} alt="Product" className="order-thumb" />
-                        <div>
-                          <div className="order-no">Order <strong>{ord.order_number}</strong></div>
-                          <div className="order-meta">{ord.date}</div>
-                          <div className="order-meta">{ord.itemsCount} Item{ord.itemsCount > 1 ? 's' : ''} • ₹{ord.total}</div>
+                  {loadingOrders ? (
+                    <p style={{ padding: '1rem', color: '#666' }}>Loading orders...</p>
+                  ) : displayOrders.length === 0 ? (
+                    <div style={{ padding: '2rem 1rem', textAlignment: 'center', background: '#fafafa', borderRadius: '8px', border: '1px dashed #ddd', textAlign: 'center' }}>
+                      <p style={{ margin: 0, fontWeight: 600, color: '#333' }}>No orders placed yet.</p>
+                      <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>Explore our catalog and place your first order!</p>
+                      <Link to="/shop" className="btn btn-black" style={{ marginTop: '0.75rem', display: 'inline-block', fontSize: '0.8rem', padding: '0.5rem 1.2rem' }}>Browse Shop</Link>
+                    </div>
+                  ) : (
+                    displayOrders.slice(0, 3).map((ord) => (
+                      <div key={ord.id} className="order-item-card">
+                        <div className="order-left-info">
+                          <img src={ord.image} alt="Product" className="order-thumb" />
+                          <div>
+                            <div className="order-no">Order <strong>{ord.order_number}</strong></div>
+                            <div className="order-meta">{ord.date} • <span style={{ fontWeight: 600, color: '#111' }}>{ord.paymentMethod}</span></div>
+                            <div className="order-meta">{ord.itemsCount} Item{ord.itemsCount > 1 ? 's' : ''} • ₹{ord.total}</div>
+                          </div>
+                        </div>
+
+                        <div className="order-status-col">
+                          <span className={`status-pill pill-${(ord.status || 'pending').toLowerCase()}`}>
+                            {ord.status.toUpperCase()}
+                          </span>
+                          <div className="delivery-info">{ord.deliveryInfo}</div>
+                        </div>
+
+                        <div className="order-price-col">
+                          <span className="order-total-price">₹{ord.total.toFixed(2)}</span>
                         </div>
                       </div>
-
-                      <div className="order-status-col">
-                        <span className={`status-pill pill-${(ord.status || 'processing').toLowerCase()}`}>
-                          {ord.status}
-                        </span>
-                        <div className="delivery-info">{ord.deliveryInfo}</div>
-                      </div>
-
-                      <div className="order-price-col">
-                        <span className="order-total-price">₹{ord.total.toFixed(2)}</span>
-                        <span className="card-arrow">&gt;</span>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 
@@ -491,35 +503,52 @@ export default function AccountPage() {
               <div className="page-header-row">
                 <div>
                   <h1 className="main-heading">My Orders</h1>
-                  <p className="sub-heading">Check status, track shipment, or buy items again</p>
+                  <p className="sub-heading">Check status, track shipment, or view delivery details</p>
                 </div>
               </div>
 
               <div className="orders-list">
-                {displayOrders.map((ord) => (
-                  <div key={ord.id} className="order-item-card">
-                    <div className="order-left-info">
-                      <img src={ord.image} alt="Product" className="order-thumb" />
-                      <div>
-                        <div className="order-no">Order <strong>{ord.order_number}</strong></div>
-                        <div className="order-meta">{ord.date}</div>
-                        <div className="order-meta">{ord.itemsCount} Item{ord.itemsCount > 1 ? 's' : ''} • ₹{ord.total}</div>
+                {loadingOrders ? (
+                  <p style={{ padding: '1rem', color: '#666' }}>Loading orders...</p>
+                ) : displayOrders.length === 0 ? (
+                  <div style={{ padding: '3rem 1rem', background: '#fafafa', borderRadius: '8px', border: '1px dashed #ddd', textAlign: 'center' }}>
+                    <p style={{ margin: 0, fontWeight: 700, fontSize: '1.1rem', color: '#111' }}>You haven't placed any orders yet</p>
+                    <p style={{ fontSize: '0.88rem', color: '#666', marginTop: '0.4rem' }}>When you order items from WINVEL, your order tracking & status will appear here.</p>
+                    <Link to="/shop" className="btn btn-black" style={{ marginTop: '1rem', display: 'inline-block', fontSize: '0.85rem', padding: '0.6rem 1.5rem' }}>Start Shopping</Link>
+                  </div>
+                ) : (
+                  displayOrders.map((ord) => (
+                    <div key={ord.id} className="order-item-card" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div className="order-left-info">
+                          <img src={ord.image} alt="Product" className="order-thumb" />
+                          <div>
+                            <div className="order-no">Order <strong>{ord.order_number}</strong></div>
+                            <div className="order-meta">Placed on {ord.date}</div>
+                            <div className="order-meta">Payment: <strong style={{ color: '#111' }}>{ord.paymentMethod}</strong></div>
+                          </div>
+                        </div>
+
+                        <div className="order-status-col" style={{ textAlignment: 'right' }}>
+                          <span className={`status-pill pill-${(ord.status || 'pending').toLowerCase()}`}>
+                            {ord.status.toUpperCase()}
+                          </span>
+                          <div className="order-total-price" style={{ marginTop: '0.25rem', fontSize: '1.1rem' }}>₹{ord.total.toFixed(2)}</div>
+                        </div>
+                      </div>
+
+                      {/* Items details dropdown / address */}
+                      <div style={{ background: '#FAF6F0', padding: '0.75rem 1rem', borderRadius: '6px', fontSize: '0.83rem', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        <div>
+                          <strong>Delivery Address:</strong> {ord.deliveryInfo}
+                        </div>
+                        <div>
+                          <strong>{ord.itemsCount} Item{ord.itemsCount > 1 ? 's' : ''}</strong>
+                        </div>
                       </div>
                     </div>
-
-                    <div className="order-status-col">
-                      <span className={`status-pill pill-${(ord.status || 'processing').toLowerCase()}`}>
-                        {ord.status}
-                      </span>
-                      <div className="delivery-info">{ord.deliveryInfo}</div>
-                    </div>
-
-                    <div className="order-price-col">
-                      <span className="order-total-price">₹{ord.total.toFixed(2)}</span>
-                      <span className="card-arrow">&gt;</span>
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           )}

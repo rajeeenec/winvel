@@ -7,6 +7,8 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/', ordersController.getOrders);
+router.post('/', ordersController.createOrder);
+router.post('/verify-payment', ordersController.verifyPayment);
 router.get('/:id', ordersController.getOrder);
 router.patch('/:id/status', requireRole('admin'), ordersController.updateOrderStatus);
 

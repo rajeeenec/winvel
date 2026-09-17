@@ -36,7 +36,7 @@ export default function App() {
   return (
     <SettingsProvider>
       <AuthProvider>
-        <Router>
+        <Router basename="/admin">
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             

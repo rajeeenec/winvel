@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useSettings } from '../../context/SettingsContext';
 import { useCart } from '../../context/CartContext';
+import { useToast } from '../../context/ToastContext';
 import './ProductDetailPage.css';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { currencySymbol } = useSettings();
   const { addToCart } = useCart();
+  const { toast } = useToast();
   const [product, setProduct] = useState(null);
   const [selectedFit, setSelectedFit] = useState('Regular');
   const [selectedVariant, setSelectedVariant] = useState(null);
@@ -34,7 +37,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!selectedVariant) {
-      alert('Please select a size/color variant.');
+      toast.warning('Select Size & Color', 'Please select a size or variant option.');
       return;
     }
     const fitChoice = hasFitOptions ? selectedFit : null;
@@ -43,7 +46,7 @@ export default function ProductDetailPage() {
     const desc = [fitDesc, variantDesc].filter(Boolean).join(' | ');
 
     addToCart(product, selectedVariant, 1, fitChoice);
-    alert(`${product.name} ${desc ? `(${desc})` : ''} added to cart!`);
+    toast.cart(product.name, desc, () => navigate('/cart'), product.image_url);
   };
 
   if (loading) return <div className="container"><p>Loading...</p></div>;

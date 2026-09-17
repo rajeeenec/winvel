@@ -267,6 +267,168 @@
   text-decoration: underline;
 }
 
+/* Checkout Section Styles */
+.checkout-section-card {
+  background-color: #ffffff;
+  border: 1px solid #eeeeee;
+  border-radius: 8px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.checkout-section-title {
+  font-size: 15px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #111111;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.saved-addresses-pills {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.address-pill {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 12px 16px;
+  background-color: #fafafa;
+  cursor: pointer;
+  min-width: 200px;
+  transition: all 0.2s;
+}
+
+.address-pill:hover,
+.address-pill.active {
+  border-color: #000000;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.address-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.address-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.address-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.address-form-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #333333;
+  text-transform: uppercase;
+}
+
+.address-input {
+  padding: 10px 14px;
+  border: 1px solid #cccccc;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.address-input:focus {
+  border-color: #000000;
+}
+
+/* Payment Method Options */
+.payment-methods-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-method-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 2px solid #eeeeee;
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.payment-method-card.selected {
+  border-color: #000000;
+  background-color: #fcfcfc;
+}
+
+.payment-method-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.payment-icon {
+  font-size: 1.6rem;
+}
+
+.payment-title {
+  font-weight: 700;
+  font-size: 15px;
+  color: #111111;
+}
+
+.payment-desc {
+  font-size: 12px;
+  color: #666666;
+  margin-top: 2px;
+}
+
+/* Mock Razorpay Modal */
+.rzp-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.rzp-modal-card {
+  background: #ffffff;
+  border-radius: 12px;
+  max-width: 440px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.rzp-header-badge {
+  background: #0c2340;
+  color: #3399cc;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 20px;
+  display: inline-block;
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
 /* Responsive Cart */
 @media (max-width: 992px) {
   .cart-grid {
@@ -305,5 +467,9 @@
     position: absolute;
     top: 10px;
     right: 10px;
+  }
+
+  .address-form-grid {
+    grid-template-columns: 1fr;
   }
 }
