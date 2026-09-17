@@ -29,7 +29,7 @@ export async function seed(knex) {
       role_id: 2,
       first_name: 'Admin',
       last_name: 'User',
-      email: 'admin@winvel.com',
+      email: 'admin@winveel.com',
       password_hash: adminHash,
       status: 'active'
     }
@@ -56,12 +56,12 @@ export async function seed(knex) {
 
   // 5. Seed Products
   await knex('products').insert([
-    { id: 1, name: 'Classic Black Tee', slug: 'classic-black-tee', short_description: 'Premium quality black t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEL', base_price: 699.00, status: 'active', featured: true, is_new: true },
-    { id: 2, name: 'Sage Green Tee', slug: 'sage-green-tee', short_description: 'Premium quality sage green t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEL', base_price: 699.00, status: 'active', featured: true, is_new: true },
-    { id: 3, name: 'Essential White Tee', slug: 'essential-white-tee', short_description: 'Premium quality white t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEL', base_price: 599.00, status: 'active', featured: true, is_new: true },
-    { id: 4, name: 'Lavender Tee', slug: 'lavender-tee', short_description: 'Premium quality lavender purple t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEL', base_price: 599.00, status: 'active', featured: true, is_new: true },
-    { id: 5, name: 'Sand Beige Tee', slug: 'sand-beige-tee', short_description: 'Premium quality beige t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEL', base_price: 699.00, status: 'active', featured: true, is_new: true },
-    { id: 6, name: 'Deep Teal Tee', slug: 'deep-teal-tee', short_description: 'Premium quality deep teal t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEL', base_price: 699.00, status: 'active', featured: true, is_new: true }
+    { id: 1, name: 'Classic Black Tee', slug: 'classic-black-tee', short_description: 'Premium quality black t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEEL', base_price: 699.00, status: 'active', featured: true, is_new: true },
+    { id: 2, name: 'Sage Green Tee', slug: 'sage-green-tee', short_description: 'Premium quality sage green t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEEL', base_price: 699.00, status: 'active', featured: true, is_new: true },
+    { id: 3, name: 'Essential White Tee', slug: 'essential-white-tee', short_description: 'Premium quality white t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEEL', base_price: 599.00, status: 'active', featured: true, is_new: true },
+    { id: 4, name: 'Lavender Tee', slug: 'lavender-tee', short_description: 'Premium quality lavender purple t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEEL', base_price: 599.00, status: 'active', featured: true, is_new: true },
+    { id: 5, name: 'Sand Beige Tee', slug: 'sand-beige-tee', short_description: 'Premium quality beige t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEEL', base_price: 699.00, status: 'active', featured: true, is_new: true },
+    { id: 6, name: 'Deep Teal Tee', slug: 'deep-teal-tee', short_description: 'Premium quality deep teal t-shirt', description: 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', brand: 'WINVEEL', base_price: 699.00, status: 'active', featured: true, is_new: true }
   ]);
 
   // 6. Seed Product Variants

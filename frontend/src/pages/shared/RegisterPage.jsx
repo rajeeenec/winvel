@@ -70,7 +70,7 @@ export default function RegisterPage() {
         <div className="auth-card register-card">
 
           <h2 className="auth-title">Create Account</h2>
-          <p className="auth-subtitle">Join WINVEL and enjoy the best in fashion.</p>
+          <p className="auth-subtitle">Join WINVEEL and enjoy the best in fashion.</p>
 
           <form onSubmit={handleSubmit}>
             {error && <div className="auth-error-msg">{error}</div>}

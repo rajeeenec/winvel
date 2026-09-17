@@ -60,7 +60,7 @@ export const DEFAULT_THEME = {
 };
 
 export const DEFAULT_STORE = {
-  'store.app_name': 'WINVEL',
+  'store.app_name': 'WINVEEL',
   'store.tagline': 'WEAR YOUR VIBE',
   'store.currency': 'INR',
   'store.currency_symbol': '₹',

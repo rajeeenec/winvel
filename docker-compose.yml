@@ -1,13 +1,13 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: winvel-mysql
+    container_name: winveel-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: winvel_db
-      MYSQL_USER: winvel_user
-      MYSQL_PASSWORD: winvel_pass
+      MYSQL_DATABASE: winveel_db
+      MYSQL_USER: winveel_user
+      MYSQL_PASSWORD: winveel_pass
     ports:
       - "3306:3306"
     volumes:
@@ -26,14 +26,14 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: winvel-db-init
+    container_name: winveel-db-init
     command: node src/scripts/init-db.js
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: winvel_user
-      DB_PASSWORD: winvel_pass
-      DB_NAME: winvel_db
+      DB_USER: winveel_user
+      DB_PASSWORD: winveel_pass
+      DB_NAME: winveel_db
     depends_on:
       mysql:
         condition: service_healthy
@@ -43,7 +43,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: winvel-backend
+    container_name: winveel-backend
     restart: unless-stopped
     ports:
       - "5000:5000"
@@ -52,10 +52,10 @@ services:
       PORT: 5000
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: winvel_user
-      DB_PASSWORD: winvel_pass
-      DB_NAME: winvel_db
-      JWT_SECRET: winvel-docker-jwt-secret-change-me
+      DB_USER: winveel_user
+      DB_PASSWORD: winveel_pass
+      DB_NAME: winveel_db
+      JWT_SECRET: winveel-docker-jwt-secret-change-me
       JWT_EXPIRES_IN: 7d
     volumes:
       - uploads_data:/app/backend/uploads
@@ -76,7 +76,7 @@ services:
     build:
       context: .
       dockerfile: file-service/Dockerfile
-    container_name: winvel-file-service
+    container_name: winveel-file-service
     restart: unless-stopped
     ports:
       - "5001:5001"
@@ -85,9 +85,9 @@ services:
       FILE_SERVICE_PORT: 5001
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_USER: winvel_user
-      DB_PASSWORD: winvel_pass
-      DB_NAME: winvel_db
+      DB_USER: winveel_user
+      DB_PASSWORD: winveel_pass
+      DB_NAME: winveel_db
     volumes:
       - uploads_data:/app/file-service/uploads
     depends_on:
@@ -102,7 +102,7 @@ services:
       dockerfile: frontend/Dockerfile
       args:
         VITE_API_URL: /api
-    container_name: winvel-frontend
+    container_name: winveel-frontend
     restart: unless-stopped
     ports:
       - "3000:80"

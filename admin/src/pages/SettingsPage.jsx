@@ -7,7 +7,7 @@ import { DEFAULT_THEME } from '../config/themeMap';
 export default function SettingsPage() {
   const { settings, updateSettings, loading } = useSettings();
   const [formData, setFormData] = useState({
-    'store.app_name': 'WINVEL',
+    'store.app_name': 'WINVEEL',
     'store.tagline': 'WEAR YOUR VIBE',
     'store.currency': 'INR',
     'store.currency_symbol': '₹',

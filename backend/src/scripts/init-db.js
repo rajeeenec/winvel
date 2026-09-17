@@ -61,7 +61,7 @@ async function ensureSettings(connection) {
 async function ensureAdminUser(connection) {
   const [existing] = await connection.execute(
     'SELECT id FROM users WHERE email = ?',
-    ['admin@winvel.com']
+    ['admin@winveel.com']
   );
 
   if (existing.length > 0) {
@@ -80,9 +80,9 @@ async function ensureAdminUser(connection) {
 
   await connection.execute(
     'INSERT INTO users (role_id, email, password_hash, first_name, last_name, status) VALUES (?, ?, ?, ?, ?, ?)',
-    [roleId, 'admin@winvel.com', adminHash, 'Admin', 'User', 'active']
+    [roleId, 'admin@winveel.com', adminHash, 'Admin', 'User', 'active']
   );
-  console.log('Admin login: admin@winvel.com / admin123');
+  console.log('Admin login: admin@winveel.com / admin123');
 }
 
 async function initDatabase() {
@@ -99,10 +99,10 @@ async function initDatabase() {
   });
 
   try {
-    console.log('Resetting and recreating winvel_db...');
-    await connection.query('DROP DATABASE IF EXISTS winvel_db');
-    await connection.query('CREATE DATABASE winvel_db');
-    await connection.query('USE winvel_db');
+    console.log('Resetting and recreating winveel_db...');
+    await connection.query('DROP DATABASE IF EXISTS winveel_db');
+    await connection.query('CREATE DATABASE winveel_db');
+    await connection.query('USE winveel_db');
 
     const schemaPath = path.resolve(__dirname, '../../../database/schema.sql');
     const seedPath = path.resolve(__dirname, '../../../database/seed.sql');

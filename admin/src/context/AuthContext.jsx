@@ -3,9 +3,9 @@ import { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [token, setToken] = useState(() => localStorage.getItem('winvel_admin_token'));
+  const [token, setToken] = useState(() => localStorage.getItem('winveel_admin_token'));
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('winvel_admin_user');
+    const savedUser = localStorage.getItem('winveel_admin_user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
   const [loading, setLoading] = useState(true);
@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
         .then((data) => {
           const userData = data.data || data.user || data;
           setUser(userData);
-          localStorage.setItem('winvel_admin_user', JSON.stringify(userData));
+          localStorage.setItem('winveel_admin_user', JSON.stringify(userData));
         })
         .catch((err) => {
           console.warn('Auth verification failed:', err.message);
@@ -53,16 +53,16 @@ export function AuthProvider({ children }) {
 
     setToken(authToken);
     setUser(userData);
-    localStorage.setItem('winvel_admin_token', authToken);
-    localStorage.setItem('winvel_admin_user', JSON.stringify(userData));
+    localStorage.setItem('winveel_admin_token', authToken);
+    localStorage.setItem('winveel_admin_user', JSON.stringify(userData));
     return userData;
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('winvel_admin_token');
-    localStorage.removeItem('winvel_admin_user');
+    localStorage.removeItem('winveel_admin_token');
+    localStorage.removeItem('winveel_admin_user');
   };
 
   return (

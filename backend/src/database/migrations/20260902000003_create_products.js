@@ -7,7 +7,7 @@ export async function up(knex) {
       table.string('slug', 280).notNullable().unique();
       table.string('short_description', 500).nullable();
       table.text('description', 'longtext').nullable();
-      table.string('brand', 100).notNullable().defaultTo('WINVEL');
+      table.string('brand', 100).notNullable().defaultTo('WINVEEL');
       table.decimal('base_price', 10, 2).notNullable();
       table.enum('status', ['draft', 'active', 'inactive', 'archived']).notNullable().defaultTo('draft');
       table.boolean('featured').notNullable().defaultTo(false);

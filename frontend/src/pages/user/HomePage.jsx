@@ -138,18 +138,18 @@ export default function HomePage() {
               </div>
             </div>
             <div className="hero-image-side">
-              <img src={heroSlides[currentSlide].image} alt="Winvel Collection" className="hero-image" />
+              <img src={heroSlides[currentSlide].image} alt="Winveel Collection" className="hero-image" />
               {/* Premium Stamp Badge Overlay */}
               <div className="premium-stamp-container">
                 <svg viewBox="0 0 100 100" width="120" height="120" className="premium-stamp">
                   <path id="circlePath" d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0" fill="transparent" />
                   <text className="stamp-text">
                     <textPath href="#circlePath">
-                      PREMIUM QUALITY • WINVEL • ESTD. 2024 •
+                      PREMIUM QUALITY • WINVEEL • ESTD. 2024 •
                     </textPath>
                   </text>
                 </svg>
-                <div className="stamp-center">WINVEL</div>
+                <div className="stamp-center">WINVEEL</div>
               </div>
             </div>
           </div>
@@ -367,7 +367,7 @@ export default function HomePage() {
       <section className="summer-sale-banner">
         <div className="banner-grid-container">
           <div className="banner-text-content">
-            <span className="banner-small-tag">WINVEL SUMMER SALE</span>
+            <span className="banner-small-tag">WINVEEL SUMMER SALE</span>
             <h2 className="banner-promo-heading">UP TO 40% OFF</h2>
             <p className="banner-promo-desc">On selected styles only for a limited time!</p>
             <Link to="/shop?sale=true" className="banner-cta-btn">SHOP THE SALE</Link>
@@ -378,11 +378,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* WHY CHOOSE WINVEL */}
+      {/* WHY CHOOSE WINVEEL */}
       <section className="why-choose-section section-padding">
         <div className="container">
           <div className="section-header-center">
-            <h2 className="section-main-title">WHY CHOOSE WINVEL?</h2>
+            <h2 className="section-main-title">WHY CHOOSE WINVEEL?</h2>
             <div className="title-underline" />
           </div>
 
@@ -426,43 +426,43 @@ export default function HomePage() {
       <section className="instagram-feed-section section-padding-bottom">
         <div className="container">
           <div className="section-header-center">
-            <h2 className="section-main-title">FOLLOW US @WINVEL.OFFICIAL</h2>
+            <h2 className="section-main-title">FOLLOW US @WINVEEL.OFFICIAL</h2>
             <div className="title-underline" />
           </div>
 
           <div className="instagram-grid">
             <div className="instagram-post">
-              <img src="/images/products/product_black.png" alt="Winvel Outfit" className="insta-img" />
+              <img src="/images/products/product_black.png" alt="Winveel Outfit" className="insta-img" />
               <div className="insta-hover-overlay">
                 <span className="insta-icon">✕</span>
               </div>
             </div>
             <div className="instagram-post">
-              <img src="/images/category_men.png" alt="Winvel Outfit" className="insta-img" />
+              <img src="/images/category_men.png" alt="Winveel Outfit" className="insta-img" />
               <div className="insta-hover-overlay">
                 <span className="insta-icon">✕</span>
               </div>
             </div>
             <div className="instagram-post">
-              <img src="/images/category_basics.png" alt="Winvel Folded Tees" className="insta-img" />
+              <img src="/images/category_basics.png" alt="Winveel Folded Tees" className="insta-img" />
               <div className="insta-hover-overlay">
                 <span className="insta-icon">✕</span>
               </div>
             </div>
             <div className="instagram-post">
-              <img src="/images/category_new.png" alt="Winvel Streetwear" className="insta-img" />
+              <img src="/images/category_new.png" alt="Winveel Streetwear" className="insta-img" />
               <div className="insta-hover-overlay">
                 <span className="insta-icon">✕</span>
               </div>
             </div>
             <div className="instagram-post">
-              <img src="/images/category_women.png" alt="Winvel Apparel" className="insta-img" />
+              <img src="/images/category_women.png" alt="Winveel Apparel" className="insta-img" />
               <div className="insta-hover-overlay">
                 <span className="insta-icon">✕</span>
               </div>
             </div>
             <div className="instagram-post">
-              <img src="/images/products/product_beige.png" alt="Winvel Casual" className="insta-img" />
+              <img src="/images/products/product_beige.png" alt="Winveel Casual" className="insta-img" />
               <div className="insta-hover-overlay">
                 <span className="insta-icon">✕</span>
               </div>
@@ -479,7 +479,7 @@ export default function HomePage() {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
             </span>
             <div className="newsletter-text">
-              <h3 className="newsletter-heading">JOIN THE WINVEL CLUB</h3>
+              <h3 className="newsletter-heading">JOIN THE WINVEEL CLUB</h3>
               <p className="newsletter-tagline">Get exclusive offers, new arrivals and style updates.</p>
             </div>
           </div>

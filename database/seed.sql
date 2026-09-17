@@ -1,4 +1,4 @@
-USE winvel_db;
+USE winveel_db;
 
 -- 1. Truncate tables to ensure clean seeding
 SET FOREIGN_KEY_CHECKS = 0;
@@ -71,12 +71,12 @@ INSERT INTO categories (id, parent_id, name, slug, sort_order) VALUES
 
 -- 6. Seed Products
 INSERT INTO products (id, name, slug, short_description, description, brand, base_price, status, featured, is_new) VALUES
-(1, 'Classic Black Tee', 'classic-black-tee', 'Premium quality black t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEL', 699.00, 'active', TRUE, TRUE),
-(2, 'Sage Green Tee', 'sage-green-tee', 'Premium quality sage green t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEL', 699.00, 'active', TRUE, TRUE),
-(3, 'Essential White Tee', 'essential-white-tee', 'Premium quality white t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEL', 599.00, 'active', TRUE, TRUE),
-(4, 'Lavender Tee', 'lavender-tee', 'Premium quality lavender purple t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEL', 599.00, 'active', TRUE, TRUE),
-(5, 'Sand Beige Tee', 'sand-beige-tee', 'Premium quality beige t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEL', 699.00, 'active', TRUE, TRUE),
-(6, 'Deep Teal Tee', 'deep-teal-tee', 'Premium quality deep teal t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEL', 699.00, 'active', TRUE, TRUE);
+(1, 'Classic Black Tee', 'classic-black-tee', 'Premium quality black t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEEL', 699.00, 'active', TRUE, TRUE),
+(2, 'Sage Green Tee', 'sage-green-tee', 'Premium quality sage green t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEEL', 699.00, 'active', TRUE, TRUE),
+(3, 'Essential White Tee', 'essential-white-tee', 'Premium quality white t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEEL', 599.00, 'active', TRUE, TRUE),
+(4, 'Lavender Tee', 'lavender-tee', 'Premium quality lavender purple t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEEL', 599.00, 'active', TRUE, TRUE),
+(5, 'Sand Beige Tee', 'sand-beige-tee', 'Premium quality beige t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEEL', 699.00, 'active', TRUE, TRUE),
+(6, 'Deep Teal Tee', 'deep-teal-tee', 'Premium quality deep teal t-shirt', 'Premium quality t-shirt for everyday comfort and style. 100% combed cotton, regular fit, pre-shrunk fabric.', 'WINVEEL', 699.00, 'active', TRUE, TRUE);
 
 -- 7. Seed Product Variants (mapping sizes & colors)
 INSERT INTO product_variants (id, product_id, size_id, color_id, sku, price, compare_at_price, stock_quantity) VALUES
@@ -126,7 +126,7 @@ INSERT INTO product_categories (product_id, category_id) VALUES
 
 -- 10. Seed Settings (mapped key_name layout)
 INSERT INTO settings (key_name, value, type) VALUES
-('store.app_name', 'WINVEL', 'string'),
+('store.app_name', 'WINVEEL', 'string'),
 ('store.tagline', 'WEAR YOUR VIBE', 'string'),
 ('store.currency', 'INR', 'string'),
 ('store.currency_symbol', '₹', 'string'),

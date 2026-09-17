@@ -19,7 +19,7 @@ export default function ProductsPage() {
     sku: '',
     short_description: '',
     description: '',
-    brand: 'WINVEL',
+    brand: 'WINVEEL',
     base_price: '',
     status: 'active',
     featured: false,
@@ -59,7 +59,7 @@ export default function ProductsPage() {
       sku: '',
       short_description: '',
       description: '',
-      brand: 'WINVEL',
+      brand: 'WINVEEL',
       base_price: '',
       status: 'active',
       featured: false,
@@ -83,7 +83,7 @@ export default function ProductsPage() {
       sku: product.sku || '',
       short_description: product.short_description || '',
       description: product.description || '',
-      brand: product.brand || 'WINVEL',
+      brand: product.brand || 'WINVEEL',
       base_price: product.base_price || '',
       status: product.status || 'active',
       featured: product.featured || false,
@@ -203,7 +203,7 @@ export default function ProductsPage() {
                       {p.sku || `SKU-${p.id}`}
                     </span>
                   </td>
-                  <td>{p.brand || 'WINVEL'}</td>
+                  <td>{p.brand || 'WINVEEL'}</td>
                   <td style={{ fontWeight: 600 }}>₹{p.base_price}</td>
                   <td>
                     <span className={`badge badge-${p.status || 'active'}`}>

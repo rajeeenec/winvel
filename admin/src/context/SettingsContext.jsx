@@ -69,7 +69,7 @@ export function SettingsProvider({ children }) {
     return settings.grouped[category]?.[key] ?? settings.flat[`${category}.${key}`] ?? fallback;
   };
 
-  const appName = get('store', 'app_name', 'WINVEL');
+  const appName = get('store', 'app_name', 'WINVEEL');
   const tagline = get('store', 'tagline', 'WEAR YOUR VIBE');
   const currencySymbol = get('store', 'currency_symbol', '₹');
 

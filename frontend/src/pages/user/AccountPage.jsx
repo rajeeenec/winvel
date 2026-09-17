@@ -47,7 +47,7 @@ export default function AccountPage() {
 
   // Saved addresses state (persisted to localStorage)
   const [addresses, setAddresses] = useState(() => {
-    const saved = localStorage.getItem('winvel_addresses');
+    const saved = localStorage.getItem('winveel_addresses');
     if (saved) {
       try { return JSON.parse(saved); } catch {}
     }
@@ -81,7 +81,7 @@ export default function AccountPage() {
 
   const saveAddressesToStorage = (newList) => {
     setAddresses(newList);
-    localStorage.setItem('winvel_addresses', JSON.stringify(newList));
+    localStorage.setItem('winveel_addresses', JSON.stringify(newList));
   };
 
   const handleOpenAddAddress = () => {
@@ -236,10 +236,10 @@ export default function AccountPage() {
   }));
 
   const sampleWishlist = [
-    { id: 1, name: 'WINVEL Oversized T-Shirt - Black', price: 699, image_url: '/images/category_men.png', size: 'L', color: 'Black' },
-    { id: 2, name: 'WINVEL Polo T-Shirt - Beige', price: 899, image_url: '/images/category_oversized.png', size: 'M', color: 'Beige' },
-    { id: 3, name: 'WINVEL Hoodie - Grey', price: 1299, image_url: '/images/category_women.png', size: 'L', color: 'Grey' },
-    { id: 4, name: 'WINVEL Signature Cap - Black', price: 499, image_url: '/images/category_basics.png', size: 'Free Size', color: 'Black' },
+    { id: 1, name: 'WINVEEL Oversized T-Shirt - Black', price: 699, image_url: '/images/category_men.png', size: 'L', color: 'Black' },
+    { id: 2, name: 'WINVEEL Polo T-Shirt - Beige', price: 899, image_url: '/images/category_oversized.png', size: 'M', color: 'Beige' },
+    { id: 3, name: 'WINVEEL Hoodie - Grey', price: 1299, image_url: '/images/category_women.png', size: 'L', color: 'Grey' },
+    { id: 4, name: 'WINVEEL Signature Cap - Black', price: 499, image_url: '/images/category_basics.png', size: 'Free Size', color: 'Black' },
   ];
 
   const displayWishlist = wishlist.length > 0 ? wishlist : sampleWishlist;
@@ -513,7 +513,7 @@ export default function AccountPage() {
                 ) : displayOrders.length === 0 ? (
                   <div style={{ padding: '3rem 1rem', background: '#fafafa', borderRadius: '8px', border: '1px dashed #ddd', textAlign: 'center' }}>
                     <p style={{ margin: 0, fontWeight: 700, fontSize: '1.1rem', color: '#111' }}>You haven't placed any orders yet</p>
-                    <p style={{ fontSize: '0.88rem', color: '#666', marginTop: '0.4rem' }}>When you order items from WINVEL, your order tracking & status will appear here.</p>
+                    <p style={{ fontSize: '0.88rem', color: '#666', marginTop: '0.4rem' }}>When you order items from WINVEEL, your order tracking & status will appear here.</p>
                     <Link to="/shop" className="btn btn-black" style={{ marginTop: '1rem', display: 'inline-block', fontSize: '0.85rem', padding: '0.6rem 1.5rem' }}>Start Shopping</Link>
                   </div>
                 ) : (
@@ -618,17 +618,17 @@ export default function AccountPage() {
                 <div className="recommend-grid">
                   <div className="recommend-card">
                     <img src="/images/category_basics.png" alt="Classic White Tee" />
-                    <h5>WINVEL Classic T-Shirt - White</h5>
+                    <h5>WINVEEL Classic T-Shirt - White</h5>
                     <div className="price">₹699.00</div>
                   </div>
                   <div className="recommend-card">
                     <img src="/images/category_men.png" alt="Sweatshirt Black" />
-                    <h5>WINVEL Sweatshirt - Black</h5>
+                    <h5>WINVEEL Sweatshirt - Black</h5>
                     <div className="price">₹1,199.00</div>
                   </div>
                   <div className="recommend-card">
                     <img src="/images/category_oversized.png" alt="Minimal Tee" />
-                    <h5>WINVEL Minimal T-Shirt - Beige</h5>
+                    <h5>WINVEEL Minimal T-Shirt - Beige</h5>
                     <div className="price">₹699.00</div>
                   </div>
                 </div>

@@ -59,7 +59,7 @@ export default function DashboardPage() {
       <div className="page-header">
         <div>
           <h1 className="page-title">Store Overview</h1>
-          <p className="page-subtitle">Welcome back! Here is what's happening with WINVEL store today.</p>
+          <p className="page-subtitle">Welcome back! Here is what's happening with WINVEEL store today.</p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
           <Link to="/products" className="btn btn-secondary">

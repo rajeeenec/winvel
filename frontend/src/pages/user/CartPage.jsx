@@ -32,10 +32,21 @@ export default function CartPage() {
   const [mockRazorpayOrder, setMockRazorpayOrder] = useState(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
 
+  // Razorpay Interactive Payment Gateway State
+  const [rzpTab, setRzpTab] = useState('upi'); // 'upi' | 'card' | 'netbanking'
+  const [cardDetails, setCardDetails] = useState({
+    number: '4111 1111 1111 1111',
+    expiry: '12/28',
+    cvv: '123',
+    name: user?.name || 'Rajkumar S',
+  });
+  const [upiId, setUpiId] = useState('9876543210@paytm');
+  const [selectedBank, setSelectedBank] = useState('HDFC Bank');
+
   // Read saved addresses from localStorage
   const savedAddresses = (() => {
     try {
-      const saved = localStorage.getItem('winvel_addresses');
+      const saved = localStorage.getItem('winveel_addresses');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -119,16 +130,14 @@ export default function CartPage() {
       } else if (paymentMethod === 'razorpay') {
         const loaded = await loadRazorpayScript();
 
-        if (orderData.is_mock || !loaded || !window.Razorpay) {
-          // Open mock Razorpay test modal
-          setMockRazorpayOrder(orderData);
-        } else {
+        if (loaded && window.Razorpay) {
           try {
+            const razorpayKey = orderData.razorpay_key_id || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_TcxvGlUcvaMJCQ';
             const options = {
-              key: orderData.razorpay_key_id,
-              amount: orderData.total_amount * 100,
+              key: razorpayKey,
+              amount: Math.round(orderData.total_amount * 100),
               currency: 'INR',
-              name: 'WINVEL',
+              name: 'WINVEEL',
               description: `Order ${orderData.order_number}`,
               order_id: orderData.razorpay_order_id,
               handler: async (response) => {
@@ -145,18 +154,26 @@ export default function CartPage() {
                 contact: shippingAddress.phone,
                 email: user?.email || '',
               },
+              modal: {
+                ondismiss: function () {
+                  toast.info('Payment Cancelled', 'You closed the Razorpay payment window.');
+                },
+              },
               theme: {
                 color: '#000000',
               },
             };
             const rzp = new window.Razorpay(options);
             rzp.on('payment.failed', function (response) {
-              toast.error('Payment Failed', response.error.description);
+              toast.error('Payment Failed', response.error?.description || 'Payment could not be completed.');
             });
             rzp.open();
-          } catch {
+          } catch (err) {
+            console.warn('Razorpay SDK modal open failed, fallback to test modal:', err);
             setMockRazorpayOrder(orderData);
           }
+        } else {
+          setMockRazorpayOrder(orderData);
         }
       }
     } catch (err) {
@@ -597,45 +614,175 @@ export default function CartPage() {
         </div>
       )}
 
-      {/* Mock Razorpay Payment Modal for Testing */}
+      {/* Interactive Razorpay Payment Gateway Modal */}
       {mockRazorpayOrder && (
         <div className="rzp-modal-overlay">
-          <div className="rzp-modal-card">
-            <div className="rzp-header-badge">RAZORPAY TEST GATEWAY</div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '8px 0', color: '#111' }}>
-              Razorpay Secure Checkout
-            </h2>
-            <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '16px' }}>
-              Order ID: <strong>{mockRazorpayOrder.razorpay_order_id}</strong>
-            </p>
-            <div style={{ background: '#f5f5f5', padding: '16px', borderRadius: '8px', marginBottom: '20px' }}>
-              <div style={{ fontSize: '0.9rem', color: '#444' }}>Payable Amount</div>
-              <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0c2340', margin: '4px 0' }}>
-                ₹{mockRazorpayOrder.total_amount}
+          <div className="rzp-modal-card" style={{ maxWidth: '480px', padding: '24px', textAlign: 'left' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '1.4rem' }}>⚡</span>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>Razorpay Secure Gateway</h3>
+                  <span style={{ fontSize: '0.75rem', color: '#666' }}>Order ID: {mockRazorpayOrder.razorpay_order_id}</span>
+                </div>
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#888' }}>
-                Simulating UPI / Card Payment Verification
-              </div>
+              <button
+                type="button"
+                onClick={() => setMockRazorpayOrder(null)}
+                style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer' }}
+              >
+                ✕
+              </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ background: '#0c2340', color: '#fff', padding: '12px 16px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <span style={{ fontSize: '0.85rem', color: '#88ccee' }}>Amount Payable</span>
+              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#00ffcc' }}>₹{mockRazorpayOrder.total_amount}</span>
+            </div>
+
+            {/* Payment Method Tabs */}
+            <div style={{ display: 'flex', gap: '6px', background: '#f0f0f0', padding: '4px', borderRadius: '8px', marginBottom: '16px' }}>
               <button
                 type="button"
-                className="btn"
-                onClick={handleSimulateMockPayment}
-                style={{ background: '#008800', color: '#fff', padding: '12px', fontWeight: 700, borderRadius: '6px', cursor: 'pointer' }}
+                onClick={() => setRzpTab('upi')}
+                style={{ flex: 1, padding: '8px', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', background: rzpTab === 'upi' ? '#fff' : 'transparent', boxShadow: rzpTab === 'upi' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none' }}
               >
-                ✓ SIMULATE SUCCESSFUL PAYMENT
+                📱 UPI / GPay
               </button>
               <button
                 type="button"
-                className="btn"
-                onClick={() => setMockRazorpayOrder(null)}
-                style={{ background: '#e0e0e0', color: '#333', padding: '10px', fontWeight: 600, borderRadius: '6px', cursor: 'pointer' }}
+                onClick={() => setRzpTab('card')}
+                style={{ flex: 1, padding: '8px', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', background: rzpTab === 'card' ? '#fff' : 'transparent', boxShadow: rzpTab === 'card' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none' }}
               >
-                Cancel Payment
+                💳 Card
+              </button>
+              <button
+                type="button"
+                onClick={() => setRzpTab('netbanking')}
+                style={{ flex: 1, padding: '8px', border: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '0.8rem', cursor: 'pointer', background: rzpTab === 'netbanking' ? '#fff' : 'transparent', boxShadow: rzpTab === 'netbanking' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none' }}
+              >
+                🏦 Netbanking
               </button>
             </div>
+
+            {/* TAB 1: UPI */}
+            {rzpTab === 'upi' && (
+              <div>
+                <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#444', marginBottom: '8px' }}>
+                  Select UPI App / Enter VPA ID
+                </div>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setUpiId(`${shippingAddress.phone || '9876543210'}@gpay`)}
+                    style={{ flex: 1, padding: '8px', border: upiId.includes('gpay') ? '2px solid #000' : '1px solid #ddd', borderRadius: '6px', background: '#fff', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Google Pay
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUpiId(`${shippingAddress.phone || '9876543210'}@ybl`)}
+                    style={{ flex: 1, padding: '8px', border: upiId.includes('ybl') ? '2px solid #000' : '1px solid #ddd', borderRadius: '6px', background: '#fff', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    PhonePe
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUpiId(`${shippingAddress.phone || '9876543210'}@paytm`)}
+                    style={{ flex: 1, padding: '8px', border: upiId.includes('paytm') ? '2px solid #000' : '1px solid #ddd', borderRadius: '6px', background: '#fff', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    Paytm
+                  </button>
+                </div>
+                <div className="address-form-group">
+                  <label>UPI ID (VPA)</label>
+                  <input
+                    type="text"
+                    className="address-input"
+                    value={upiId}
+                    onChange={(e) => setUpiId(e.target.value)}
+                    placeholder="e.g. username@upi or mobile@gpay"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: Card */}
+            {rzpTab === 'card' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div className="address-form-group">
+                  <label>Card Number</label>
+                  <input
+                    type="text"
+                    className="address-input"
+                    value={cardDetails.number}
+                    onChange={(e) => setCardDetails({ ...cardDetails, number: e.target.value })}
+                    placeholder="16-digit card number"
+                  />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div className="address-form-group">
+                    <label>Expiry (MM/YY)</label>
+                    <input
+                      type="text"
+                      className="address-input"
+                      value={cardDetails.expiry}
+                      onChange={(e) => setCardDetails({ ...cardDetails, expiry: e.target.value })}
+                      placeholder="MM/YY"
+                    />
+                  </div>
+                  <div className="address-form-group">
+                    <label>CVV</label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      className="address-input"
+                      value={cardDetails.cvv}
+                      onChange={(e) => setCardDetails({ ...cardDetails, cvv: e.target.value })}
+                      placeholder="123"
+                    />
+                  </div>
+                </div>
+                <div className="address-form-group">
+                  <label>Cardholder Name</label>
+                  <input
+                    type="text"
+                    className="address-input"
+                    value={cardDetails.name}
+                    onChange={(e) => setCardDetails({ ...cardDetails, name: e.target.value })}
+                    placeholder="Name on card"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* TAB 3: Netbanking */}
+            {rzpTab === 'netbanking' && (
+              <div className="address-form-group">
+                <label>Select Bank</label>
+                <select
+                  className="address-input"
+                  value={selectedBank}
+                  onChange={(e) => setSelectedBank(e.target.value)}
+                >
+                  <option value="HDFC Bank">HDFC Bank</option>
+                  <option value="State Bank of India">State Bank of India (SBI)</option>
+                  <option value="ICICI Bank">ICICI Bank</option>
+                  <option value="Axis Bank">Axis Bank</option>
+                  <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                </select>
+              </div>
+            )}
+
+            {/* Pay Now Button */}
+            <button
+              type="button"
+              className="btn btn-black btn-block"
+              onClick={handleSimulateMockPayment}
+              style={{ marginTop: '20px', padding: '12px', fontSize: '0.9rem', fontWeight: 700, borderRadius: '6px', background: '#008800', color: '#fff', width: '100%', cursor: 'pointer' }}
+            >
+              PAY ₹{mockRazorpayOrder.total_amount} NOW →
+            </button>
           </div>
         </div>
       )}

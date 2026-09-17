@@ -30,7 +30,7 @@ export default function UserLayout() {
               <span className="icon">🚚</span> FREE SHIPPING ON ORDERS ABOVE ₹999
             </span>
             <span className="announcement-item highlight">
-              <span className="icon">🔥</span> WINVEL SUMMER SALE - UP TO 40% OFF
+              <span className="icon">🔥</span> WINVEEL SUMMER SALE - UP TO 40% OFF
             </span>
             <span className="announcement-item">
               <span className="icon">📞</span> SUPPORT: +91 98765 43210
@@ -44,7 +44,7 @@ export default function UserLayout() {
         <div className="container user-header-inner">
           {/* Logo Brand Section */}
           <Link to="/" className="logo-container">
-            <span className="brand-logo">WINVEL</span>
+            <span className="brand-logo">WINVEEL</span>
             <span className="brand-sub">WEAR YOUR VIBE</span>
           </Link>
 
@@ -118,7 +118,7 @@ export default function UserLayout() {
         <div className="container footer-grid">
           {/* Column 1: Brand Info */}
           <div className="footer-col brand-col">
-            <span className="footer-logo">WINVEL</span>
+            <span className="footer-logo">WINVEEL</span>
             <span className="footer-sub">WEAR YOUR VIBE</span>
             <p className="footer-desc">Minimal styles. Premium quality. Made for everyday you.</p>
             <div className="social-links">
@@ -167,7 +167,7 @@ export default function UserLayout() {
           <div className="footer-col">
             <h4 className="footer-title">ABOUT</h4>
             <ul className="footer-links">
-              <li><a href="#">About Winvel</a></li>
+              <li><a href="#">About Winveel</a></li>
               <li><a href="#">Our Story</a></li>
               <li><a href="#">Careers</a></li>
               <li><a href="#">Blog</a></li>
@@ -177,7 +177,7 @@ export default function UserLayout() {
 
           {/* Column 5: About Statement */}
           <div className="footer-col about-statement-col">
-            <h4 className="footer-title">ABOUT WINVEL</h4>
+            <h4 className="footer-title">ABOUT WINVEEL</h4>
             <p className="about-text">
               We believe in minimal design and maximum comfort. Thank you for supporting our small brand!
             </p>
@@ -187,7 +187,7 @@ export default function UserLayout() {
         {/* Bottom copyright bar */}
         <div className="footer-bottom">
           <div className="container footer-bottom-inner">
-            <span className="copyright">© {new Date().getFullYear()} WINVEL. All Rights Reserved.</span>
+            <span className="copyright">© {new Date().getFullYear()} WINVEEL. All Rights Reserved.</span>
             <div className="policy-links">
               <a href="#">Privacy Policy</a>
               <span className="separator">|</span>

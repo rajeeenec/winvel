@@ -5,7 +5,7 @@ import { useSettings } from '../context/SettingsContext';
 import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('admin@winvel.com');
+  const [email, setEmail] = useState('admin@winveel.com');
   const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -36,7 +36,7 @@ export default function LoginPage() {
           <div style={{ display: 'inline-flex', padding: '0.75rem', borderRadius: 'var(--radius)', background: 'var(--color-bg)', color: 'var(--color-secondary)', marginBottom: '1rem' }}>
             <ShieldCheck size={36} />
           </div>
-          <h1>{appName ? appName.toUpperCase() : 'WINVEL'} ADMIN</h1>
+          <h1>{appName ? appName.toUpperCase() : 'WINVEEL'} ADMIN</h1>
           <p>Sign in to access your store control panel</p>
         </div>
 
@@ -59,7 +59,7 @@ export default function LoginPage() {
                 style={{ paddingLeft: '2.5rem', width: '100%' }}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@winvel.com"
+                placeholder="admin@winveel.com"
               />
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function LoginPage() {
         </form>
 
         <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--color-text-muted)' }}>
-          Default Credentials: <code style={{ color: 'var(--color-secondary)', background: 'var(--color-bg)', padding: '0.2rem 0.4rem', borderRadius: 4 }}>admin@winvel.com / admin123</code>
+          Default Credentials: <code style={{ color: 'var(--color-secondary)', background: 'var(--color-bg)', padding: '0.2rem 0.4rem', borderRadius: 4 }}>admin@winveel.com / admin123</code>
         </div>
       </div>
     </div>

@@ -38,7 +38,7 @@ export function SettingsProvider({ children }) {
     return settings.grouped[category]?.[key] ?? fallback;
   };
 
-  const appName = get('store', 'app_name', 'Winvel');
+  const appName = get('store', 'app_name', 'Winveel');
   const tagline = get('store', 'tagline', 'Premium T-Shirts');
   const currencySymbol = get('store', 'currency_symbol', '$');
   const logoUrl = get('store', 'logo_url', '');

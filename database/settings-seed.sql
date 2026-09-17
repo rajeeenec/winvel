@@ -1,4 +1,4 @@
-USE winvel_db;
+USE winveel_db;
 
 -- Theme colors (public — loaded by frontend on startup)
 INSERT IGNORE INTO settings (category, setting_key, setting_value, value_type, label, description, is_public) VALUES
@@ -29,10 +29,10 @@ INSERT IGNORE INTO settings (category, setting_key, setting_value, value_type, l
 -- Store config (public read, admin write)
 INSERT IGNORE INTO settings (category, setting_key, setting_value, value_type, label, description, is_public) VALUES
 ('store', 'logo_url', '', 'image', 'Store Logo', 'Upload store logo (PNG, JPG, SVG)', TRUE),
-('store', 'app_name', 'Winvel', 'string', 'App Name', 'Store brand name', TRUE),
+('store', 'app_name', 'Winveel', 'string', 'App Name', 'Store brand name', TRUE),
 ('store', 'tagline', 'Premium T-Shirts', 'string', 'Tagline', 'Store tagline', TRUE),
 ('store', 'currency', 'USD', 'string', 'Currency', 'Currency code', TRUE),
 ('store', 'currency_symbol', '$', 'string', 'Currency Symbol', 'Display symbol', TRUE),
 ('store', 'free_shipping_threshold', '50', 'number', 'Free Shipping Min', 'Minimum order for free shipping', TRUE),
-('store', 'contact_email', 'support@winvel.com', 'string', 'Contact Email', 'Customer support email', FALSE),
+('store', 'contact_email', 'support@winveel.com', 'string', 'Contact Email', 'Customer support email', FALSE),
 ('store', 'tax_rate', '0', 'number', 'Tax Rate (%)', 'Default tax percentage', FALSE);

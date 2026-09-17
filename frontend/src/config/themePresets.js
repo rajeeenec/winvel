@@ -39,7 +39,7 @@ export const THEME_COLOR_GROUPS = [
 export const THEME_PRESETS = [
   {
     id: 'classic',
-    name: 'Winvel Classic',
+    name: 'Winveel Classic',
     description: 'Navy + coral — default store look',
     swatch: ['#1a1a2e', '#e94560', '#f8f9fa'],
     colors: {

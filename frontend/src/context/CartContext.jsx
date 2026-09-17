@@ -4,21 +4,21 @@ const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('winvel_cart');
+    const saved = localStorage.getItem('winveel_cart');
     return saved ? JSON.parse(saved) : [];
   });
 
   const [wishlist, setWishlist] = useState(() => {
-    const saved = localStorage.getItem('winvel_wishlist');
+    const saved = localStorage.getItem('winveel_wishlist');
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('winvel_cart', JSON.stringify(cart));
+    localStorage.setItem('winveel_cart', JSON.stringify(cart));
   }, [cart]);
 
   useEffect(() => {
-    localStorage.setItem('winvel_wishlist', JSON.stringify(wishlist));
+    localStorage.setItem('winveel_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
   const addToCart = (product, variant, quantity = 1, fitting = null) => {

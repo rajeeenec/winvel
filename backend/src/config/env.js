@@ -11,9 +11,9 @@ export const env = {
   db: {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '3306', 10),
-    user: process.env.DB_USER || 'winvel_user',
-    password: process.env.DB_PASSWORD || 'winvel_pass',
-    database: process.env.DB_NAME || 'winvel_db',
+    user: process.env.DB_USER || 'winveel_user',
+    password: process.env.DB_PASSWORD || 'winveel_pass',
+    database: process.env.DB_NAME || 'winveel_db',
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'dev-secret-change-me',

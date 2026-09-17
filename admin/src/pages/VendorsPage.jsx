@@ -34,7 +34,7 @@ export default function VendorsPage() {
         // Sample default vendors if DB is empty
         setVendors([
           { id: 1, name: 'Apex Apparel Clothing', contact_person: 'Suresh Kumar', email: 'suresh@apexapparel.com', phone: '+91 9840123456', gstin: '33AAAAA0000A1Z5', is_active: true },
-          { id: 2, name: 'Winvel Weaves & Textile', contact_person: 'Anitha Raj', email: 'anitha@winvelweaves.com', phone: '+91 9789012345', gstin: '33BBBBB1111B2Z6', is_active: true },
+          { id: 2, name: 'Winveel Weaves & Textile', contact_person: 'Anitha Raj', email: 'anitha@winveelweaves.com', phone: '+91 9789012345', gstin: '33BBBBB1111B2Z6', is_active: true },
         ]);
       }
     } catch {

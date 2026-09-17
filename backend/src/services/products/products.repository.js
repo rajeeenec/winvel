@@ -210,7 +210,7 @@ export async function create(product) {
     short_description: product.short_description || product.shortDescription || null,
     description: product.description || null,
     base_price: product.base_price ?? product.price ?? 0,
-    brand: product.brand || 'WINVEL',
+    brand: product.brand || 'WINVEEL',
     status: product.status || ((product.isActive ?? true) ? 'active' : 'inactive'),
     featured: product.featured ?? product.isFeatured ?? false,
     is_new: product.is_new ?? product.isNew ?? true,

@@ -1,6 +1,6 @@
--- WINVEL Production Database Schema
-CREATE DATABASE IF NOT EXISTS winvel_db;
-USE winvel_db;
+-- WINVEEL Production Database Schema
+CREATE DATABASE IF NOT EXISTS winveel_db;
+USE winveel_db;
 
 -- 1. Roles table
 CREATE TABLE IF NOT EXISTS roles (
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS products (
   slug VARCHAR(280) UNIQUE NOT NULL,
   short_description VARCHAR(500),
   description LONGTEXT,
-  brand VARCHAR(100) NOT NULL DEFAULT 'WINVEL',
+  brand VARCHAR(100) NOT NULL DEFAULT 'WINVEEL',
   base_price DECIMAL(10,2) NOT NULL,
   status ENUM('draft','active','inactive','archived') NOT NULL DEFAULT 'draft',
   featured BOOLEAN NOT NULL DEFAULT FALSE,

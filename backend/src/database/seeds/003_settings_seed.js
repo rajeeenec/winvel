@@ -4,7 +4,7 @@ export async function seed(knex) {
   await knex.raw('SET FOREIGN_KEY_CHECKS = 1');
 
   await knex('settings').insert([
-    { key_name: 'store.app_name', value: 'WINVEL', type: 'string' },
+    { key_name: 'store.app_name', value: 'WINVEEL', type: 'string' },
     { key_name: 'store.tagline', value: 'WEAR YOUR VIBE', type: 'string' },
     { key_name: 'store.currency', value: 'INR', type: 'string' },
     { key_name: 'store.currency_symbol', value: '₹', type: 'string' },

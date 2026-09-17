@@ -84,7 +84,7 @@ export default function AdminLayout() {
           </div>
           <div>
             <h2 style={{ fontFamily: 'var(--font)', fontSize: '1.15rem', fontWeight: 800, letterSpacing: '0.05em', color: 'var(--color-text)', lineHeight: 1.1 }}>
-              {appName ? appName.toUpperCase() : 'WINVEL'}
+              {appName ? appName.toUpperCase() : 'WINVEEL'}
             </h2>
             <p style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: '1px' }}>
               Admin Control
@@ -198,7 +198,7 @@ export default function AdminLayout() {
                   {user?.name || `${user?.first_name || 'Admin'} ${user?.last_name || ''}`}
                 </div>
                 <div style={{ fontSize: '0.72rem', color: '#78716C', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                  {user?.email || 'admin@winvel.com'}
+                  {user?.email || 'admin@winveel.com'}
                 </div>
               </div>
             </div>

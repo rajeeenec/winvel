@@ -22,7 +22,7 @@ router.use('/vendors', vendorsRoutes);
 router.use('/inventory', inventoryRoutes);
 
 router.get('/health', (_req, res) => {
-  res.json({ success: true, message: 'Winvel API is running' });
+  res.json({ success: true, message: 'Winveel API is running' });
 });
 
 export default router;

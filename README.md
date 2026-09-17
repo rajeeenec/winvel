@@ -1,11 +1,11 @@
-# Winvel - T-Shirt E-Commerce Platform
+# Winveel - T-Shirt E-Commerce Platform
 
 A full-stack t-shirt e-commerce application built with React, Node.js/Express, and MySQL.
 
 ## Project Structure
 
 ```
-winvel/
+winveel/
 ├── backend/                  # Express API server
 │   └── src/
 │       ├── config/           # Database & environment config
@@ -60,7 +60,7 @@ npm run docker:up
 | API | http://localhost:5000/api |
 | API health | http://localhost:5000/api/health |
 
-**Admin login:** `admin@winvel.com` / `admin123`
+**Admin login:** `admin@winveel.com` / `admin123`
 
 Other commands:
 
@@ -163,7 +163,7 @@ Access admin at http://localhost:3000/admin
 
 | Email | Password |
 |-------|----------|
-| admin@winvel.com | admin123 |
+| admin@winveel.com | admin123 |
 
 Created automatically by `npm run db:init`. Change this password before deploying to production.
 

@@ -48,7 +48,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h2 className="auth-title">LOGIN TO WINVEL</h2>
+          <h2 className="auth-title">LOGIN TO WINVEEL</h2>
           <p className="auth-subtitle">Enter your details to access your account</p>
 
           <form onSubmit={handleSubmit}>
