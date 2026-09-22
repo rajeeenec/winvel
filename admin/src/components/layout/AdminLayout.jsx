@@ -246,7 +246,7 @@ export default function AdminLayout() {
             >
               Environment: Development
             </span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Port: 5174</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>Port: 3001</span>
           </div>
         </header>
 

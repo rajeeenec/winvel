@@ -57,8 +57,8 @@ npm run docker:up
 |---------|-----|
 | Store (frontend) | http://localhost:3000 |
 | Admin panel | http://localhost:3000/admin |
-| API | http://localhost:5000/api |
-| API health | http://localhost:5000/api/health |
+| API | http://localhost:4000/api |
+| API health | http://localhost:4000/api/health |
 
 **Admin login:** `admin@winveel.com` / `admin123`
 
@@ -115,7 +115,7 @@ npm run dev
 ```
 
 This starts both:
-- **Backend API** at http://localhost:5000
+- **Backend API** at http://localhost:4000
 - **Frontend** at http://localhost:3000
 
 run reparate go separate path and run 
@@ -187,7 +187,7 @@ npm run db:seed -- 001_category_seed
 
 task pid find command 
 
-netstat -ano | grep :5000
+netstat -ano | grep :4000
 
 kill command
 
