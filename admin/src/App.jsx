@@ -13,6 +13,7 @@ import UsersPage from './pages/UsersPage';
 import VendorsPage from './pages/VendorsPage';
 import RolesPage from './pages/RolesPage';
 import SettingsPage from './pages/SettingsPage';
+import OrderStatusMasterPage from './pages/admin/OrderStatusMasterPage';
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="users" element={<UsersPage />} />
               <Route path="vendors" element={<VendorsPage />} />
               <Route path="roles" element={<RolesPage />} />
+              <Route path="masters/order-statuses" element={<OrderStatusMasterPage />} />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
 

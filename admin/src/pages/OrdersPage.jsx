@@ -4,6 +4,7 @@ import api from '../services/api';
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
+  const [masterStatuses, setMasterStatuses] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -24,6 +25,9 @@ export default function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
+    api.get('/order-statuses')
+      .then((res) => setMasterStatuses(res.data || []))
+      .catch(() => setMasterStatuses([]));
   }, []);
 
   const handleStatusChange = async (orderId, newStatus) => {
@@ -93,12 +97,22 @@ export default function OrdersPage() {
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="all">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="cancelled">Cancelled</option>
+                {masterStatuses.length > 0 ? (
+                  masterStatuses.map((st) => (
+                    <option key={st.id} value={st.code.toLowerCase()}>
+                      {st.name}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                  </>
+                )}
               </select>
             </div>
           </div>
@@ -165,12 +179,22 @@ export default function OrdersPage() {
                       value={o.status || o.order_status || 'pending'}
                       onChange={(e) => handleStatusChange(o.id, e.target.value)}
                     >
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="processing">Processing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="cancelled">Cancelled</option>
+                      {masterStatuses.length > 0 ? (
+                        masterStatuses.map((st) => (
+                          <option key={st.id} value={st.code.toLowerCase()}>
+                            {st.name}
+                          </option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="processing">Processing</option>
+                          <option value="shipped">Shipped</option>
+                          <option value="delivered">Delivered</option>
+                          <option value="cancelled">Cancelled</option>
+                        </>
+                      )}
                     </select>
                   </td>
                   <td style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>

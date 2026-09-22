@@ -142,3 +142,18 @@ INSERT INTO settings (key_name, value, type) VALUES
 ('theme.radius', '4px', 'string'),
 ('theme.font_family', 'Inter, system-ui, sans-serif', 'string'),
 ('theme.auth_banner', '/images/auth_banner.png', 'image');
+
+-- 11. Seed Order Statuses Master
+TRUNCATE TABLE order_statuses;
+INSERT INTO order_statuses (id, code, name, customer_label_msg, show_to_customer, send_email, badge_color, sort_order, status) VALUES
+(1, 'ORDER_PLACED', 'Order Placed', 'Your order has been placed successfully.', TRUE, TRUE, 'blue', 1, TRUE),
+(2, 'PAYMENT_STATUS', 'Payment Status', 'Payment status updated for your order.', TRUE, FALSE, 'amber', 2, TRUE),
+(3, 'CONFIRMED', 'Confirmed', 'Your order has been confirmed by the seller.', TRUE, TRUE, 'indigo', 3, TRUE),
+(4, 'PACKING_IN_PROGRESS', 'Packing in Progress', 'Your order items are being packed with care.', TRUE, FALSE, 'purple', 4, TRUE),
+(5, 'READY_FOR_PICKUP', 'Ready for Pickup', 'Your package is ready for courier pickup.', TRUE, FALSE, 'teal', 5, TRUE),
+(6, 'OUT_FOR_DELIVERY', 'Out for Delivery', 'Your package is out for delivery today.', TRUE, TRUE, 'amber', 6, TRUE),
+(7, 'DELIVERED', 'Delivered', 'Your order has been delivered successfully.', TRUE, TRUE, 'emerald', 7, TRUE),
+(8, 'COMPLETED', 'Completed', 'Order completed. Thank you for shopping with us!', TRUE, FALSE, 'emerald', 8, TRUE),
+(9, 'CANCELED', 'Canceled', 'Your order has been canceled.', TRUE, TRUE, 'rose', 9, TRUE),
+(10, 'RETURN_PLACED', 'Return Placed', 'Return request has been initiated.', TRUE, TRUE, 'orange', 10, TRUE);
+

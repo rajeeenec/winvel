@@ -8,6 +8,7 @@ import settingsRoutes from '../services/settings/settings.routes.js';
 import rolesRoutes from '../services/roles/roles.routes.js';
 import vendorsRoutes from '../services/vendors/vendors.routes.js';
 import inventoryRoutes from '../services/inventory/inventory.routes.js';
+import orderStatusesRoutes from '../services/order-statuses/orderStatuses.routes.js';
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use('/settings', settingsRoutes);
 router.use('/roles', rolesRoutes);
 router.use('/vendors', vendorsRoutes);
 router.use('/inventory', inventoryRoutes);
+router.use('/order-statuses', orderStatusesRoutes);
 
 router.get('/health', (_req, res) => {
   res.json({ success: true, message: 'Winveel API is running' });

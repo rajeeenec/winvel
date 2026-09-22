@@ -577,6 +577,24 @@ CREATE TABLE IF NOT EXISTS settings (
   FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- 36. Order Statuses master table
+CREATE TABLE IF NOT EXISTS order_statuses (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(50) UNIQUE NOT NULL,
+  name VARCHAR(100) NOT NULL,
+  customer_label_msg VARCHAR(255),
+  show_to_customer BOOLEAN NOT NULL DEFAULT TRUE,
+  send_email BOOLEAN NOT NULL DEFAULT FALSE,
+  badge_color VARCHAR(20) NOT NULL DEFAULT 'blue',
+  sort_order INT NOT NULL DEFAULT 0,
+  status BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_order_statuses_code (code),
+  INDEX idx_order_statuses_sort (sort_order),
+  INDEX idx_order_statuses_status (status)
+);
+
 -- Extra table for file-service uploads (Required to keep upload API functional)
 CREATE TABLE IF NOT EXISTS files (
   id INT AUTO_INCREMENT PRIMARY KEY,

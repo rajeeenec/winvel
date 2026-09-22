@@ -17,14 +17,28 @@ export default function OrdersPage() {
   const { user } = useAuth();
   const { currencySymbol } = useSettings();
   const [orders, setOrders] = useState([]);
+  const [statusMasters, setStatusMasters] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      api.get('/orders')
-        .then((res) => {
-          const list = Array.isArray(res) ? res : (res.data || []);
+      Promise.all([
+        api.get('/orders'),
+        api.get('/order-statuses?active=true').catch(() => ({ data: [] })),
+      ])
+        .then(([resOrders, resStatuses]) => {
+          const list = Array.isArray(resOrders) ? resOrders : (resOrders.data || []);
           setOrders(list);
+
+          const statusMap = {};
+          const statusList = resStatuses.data || resStatuses || [];
+          if (Array.isArray(statusList)) {
+            statusList.forEach((s) => {
+              if (s.code) statusMap[s.code.toLowerCase()] = s;
+              if (s.name) statusMap[s.name.toLowerCase()] = s;
+            });
+          }
+          setStatusMasters(statusMap);
         })
         .catch(console.error)
         .finally(() => setLoading(false));
@@ -52,25 +66,45 @@ export default function OrdersPage() {
                 <th style={{ padding: '0.75rem' }}>Date</th>
                 <th style={{ padding: '0.75rem' }}>Payment</th>
                 <th style={{ padding: '0.75rem' }}>Total</th>
-                <th style={{ padding: '0.75rem' }}>Status</th>
+                <th style={{ padding: '0.75rem' }}>Status & Updates</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
-                <tr key={order.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '0.75rem', fontWeight: 700 }}>{order.order_number}</td>
-                  <td style={{ padding: '0.75rem' }}>{new Date(order.created_at || Date.now()).toLocaleDateString()}</td>
-                  <td style={{ padding: '0.75rem', textTransform: 'uppercase', fontWeight: 600, fontSize: '0.85rem' }}>
-                    {order.payment_method || 'COD'}
-                  </td>
-                  <td style={{ padding: '0.75rem', fontWeight: 700 }}>{currencySymbol}{order.total_amount || order.total}</td>
-                  <td style={{ padding: '0.75rem' }}>
-                    <span className={`badge ${statusBadge[order.order_status || order.status] || 'badge-info'}`} style={{ textTransform: 'uppercase', padding: '0.25rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}>
-                      {order.order_status || order.status || 'pending'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {orders.map((order) => {
+                const rawStatus = (order.order_status || order.status || 'pending').toLowerCase();
+                const master = statusMasters[rawStatus];
+
+                // Respect show_to_customer setting
+                const displayStatusName = master
+                  ? (master.show_to_customer ? master.name : 'Processing')
+                  : rawStatus.replace(/_/g, ' ');
+
+                const customerMsg = master && master.show_to_customer ? master.customer_label_msg : null;
+
+                return (
+                  <tr key={order.id} style={{ borderBottom: '1px solid #eee' }}>
+                    <td style={{ padding: '0.75rem', fontWeight: 700 }}>{order.order_number}</td>
+                    <td style={{ padding: '0.75rem' }}>{new Date(order.created_at || Date.now()).toLocaleDateString()}</td>
+                    <td style={{ padding: '0.75rem', textTransform: 'uppercase', fontWeight: 600, fontSize: '0.85rem' }}>
+                      {order.payment_method || 'COD'}
+                    </td>
+                    <td style={{ padding: '0.75rem', fontWeight: 700 }}>{currencySymbol}{order.total_amount || order.total}</td>
+                    <td style={{ padding: '0.75rem' }}>
+                      <span
+                        className={`badge ${statusBadge[rawStatus] || 'badge-info'}`}
+                        style={{ textTransform: 'uppercase', padding: '0.25rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 700 }}
+                      >
+                        {displayStatusName}
+                      </span>
+                      {customerMsg && (
+                        <div style={{ fontSize: '0.78rem', color: '#555', marginTop: '0.35rem', fontStyle: 'italic' }}>
+                          💬 {customerMsg}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

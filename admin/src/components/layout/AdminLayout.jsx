@@ -18,6 +18,7 @@ import {
   ChevronRight,
   Boxes,
   Boxes as InventoryIcon,
+  Sliders,
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -26,11 +27,15 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isOrderMgmtChildActive = ['/orders'].includes(location.pathname);
   const isStockMgmtChildActive = ['/inventory'].includes(location.pathname);
   const isUserMgmtChildActive = ['/users', '/customers', '/vendors'].includes(location.pathname);
+  const isMastersChildActive = ['/masters/order-statuses'].includes(location.pathname);
 
+  const [isOrderMgmtOpen, setIsOrderMgmtOpen] = useState(isOrderMgmtChildActive);
   const [isStockMgmtOpen, setIsStockMgmtOpen] = useState(isStockMgmtChildActive);
   const [isUserMgmtOpen, setIsUserMgmtOpen] = useState(isUserMgmtChildActive);
+  const [isMastersOpen, setIsMastersOpen] = useState(isMastersChildActive);
 
   const handleLogout = () => {
     logout();
@@ -41,7 +46,17 @@ export default function AdminLayout() {
     { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { label: 'Products', icon: Package, path: '/products' },
     { label: 'Categories', icon: Tag, path: '/categories' },
-    { label: 'Orders', icon: ShoppingBag, path: '/orders' },
+    {
+      label: 'Order Management',
+      icon: ShoppingBag,
+      isParent: true,
+      key: 'orders',
+      isOpen: isOrderMgmtOpen,
+      setIsOpen: setIsOrderMgmtOpen,
+      children: [
+        { label: 'Orders', icon: ShoppingBag, path: '/orders' },
+      ],
+    },
     {
       label: 'Stock Management',
       icon: Boxes,
@@ -64,6 +79,17 @@ export default function AdminLayout() {
         { label: 'Users', icon: UserCheck, path: '/users' },
         { label: 'Customers', icon: Users, path: '/customers' },
         { label: 'Vendors', icon: Building2, path: '/vendors' },
+      ],
+    },
+    {
+      label: 'Masters',
+      icon: Sliders,
+      isParent: true,
+      key: 'masters',
+      isOpen: isMastersOpen,
+      setIsOpen: setIsMastersOpen,
+      children: [
+        { label: 'Order Status Master', icon: Sliders, path: '/masters/order-statuses' },
       ],
     },
     { label: 'Roles', icon: ShieldCheck, path: '/roles' },
