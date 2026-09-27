@@ -50,6 +50,7 @@ if (USE_MICROSERVICES) {
   // Static uploads & upload endpoints -> File Service (Port 4003)
   app.use('/uploads', createServiceProxy(servicePorts.files, 'File Service', '/uploads'));
   app.use('/upload', createServiceProxy(servicePorts.files, 'File Service', '/upload'));
+  app.use('/api/upload', createServiceProxy(servicePorts.files, 'File Service', '/api/upload'));
 
   // Microservice Proxy Routes
   app.use('/api/auth', createServiceProxy(servicePorts.auth, 'Auth Service', '/api/auth'));

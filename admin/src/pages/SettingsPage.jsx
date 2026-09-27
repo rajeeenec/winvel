@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Check, Palette, Store, RefreshCw } from 'lucide-react';
+import { Save, Check, Palette, Store, RefreshCw, Image, Upload } from 'lucide-react';
 import { useSettings } from '../context/SettingsContext';
 import { applyTheme } from '../utils/applyTheme';
 import { DEFAULT_THEME } from '../config/themeMap';
@@ -21,10 +21,15 @@ export default function SettingsPage() {
     'theme.text_muted': '#6c757d',
     'theme.border': '#dee2e6',
     'theme.radius': '8px',
+    'theme.hero_banner_1': '',
+    'theme.hero_banner_2': '',
+    'theme.promo_banner': '',
+    'theme.auth_banner': '',
   });
 
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingKey, setUploadingKey] = useState(null);
 
   useEffect(() => {
     if (settings && settings.flat && Object.keys(settings.flat).length > 0) {
@@ -38,9 +43,36 @@ export default function SettingsPage() {
   const handleChange = (key, value) => {
     const updated = { ...formData, [key]: value };
     setFormData(updated);
-    // Instant live preview
     if (key.startsWith('theme.')) {
       applyTheme(updated);
+    }
+  };
+
+  const handleFileUpload = async (key, file) => {
+    if (!file) return;
+    setUploadingKey(key);
+    try {
+      const data = new FormData();
+      data.append('file', file);
+      const token = localStorage.getItem('winveel_admin_token');
+      const res = await fetch('http://localhost:4000/api/upload', {
+        method: 'POST',
+        headers: {
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
+        body: data,
+      });
+      const json = await res.json();
+      if (json && (json.url || json.data?.url)) {
+        const uploadedUrl = json.url || json.data.url;
+        handleChange(key, uploadedUrl);
+      } else {
+        alert('Image upload failed: ' + (json.error || 'Unknown error'));
+      }
+    } catch (err) {
+      alert('Upload error: ' + err.message);
+    } finally {
+      setUploadingKey(null);
     }
   };
 
@@ -73,12 +105,19 @@ export default function SettingsPage() {
     return <div style={{ padding: '2rem', color: 'var(--color-text-muted)' }}>Loading store configuration...</div>;
   }
 
+  const bannerFields = [
+    { key: 'theme.hero_banner_1', label: 'Hero Slide 1 Banner Image', desc: 'Main hero banner shown on Storefront homepage (Slide 1)' },
+    { key: 'theme.hero_banner_2', label: 'Hero Slide 2 Banner Image', desc: 'Secondary hero banner shown on Storefront homepage (Slide 2)' },
+    { key: 'theme.promo_banner', label: 'Summer Sale Promo Banner Image', desc: 'Full-width promo banner image displayed on homepage' },
+    { key: 'theme.auth_banner', label: 'Login / Auth Page Side Banner', desc: 'Background banner image for Admin & Store login pages' },
+  ];
+
   return (
     <div>
       <div className="page-header">
         <div>
           <h1 className="page-title">Store & Theme Settings</h1>
-          <p className="page-subtitle">Configure store parameters, branding, dynamic colors, and design theme</p>
+          <p className="page-subtitle">Configure store parameters, custom banner images, colors, and branding</p>
         </div>
       </div>
 
@@ -132,6 +171,64 @@ export default function SettingsPage() {
                   onChange={(e) => handleChange('store.currency_symbol', e.target.value)}
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Banner Images Management Card */}
+          <div className="card" style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '0.75rem' }}>
+              <Image size={20} color="var(--color-secondary)" />
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Storefront Banner Images Management</h2>
+            </div>
+
+            <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '1.25rem' }}>
+              Upload custom banner images to replace default placeholders across the Storefront and Auth pages.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {bannerFields.map((b) => {
+                const currentVal = formData[b.key] || '';
+                const isUploading = uploadingKey === b.key;
+
+                return (
+                  <div key={b.key} style={{ padding: '1rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius)', backgroundColor: 'var(--color-bg)' }}>
+                    <label className="form-label" style={{ fontWeight: 600, fontSize: '0.92rem' }}>{b.label}</label>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', marginBottom: '0.75rem' }}>{b.desc}</p>
+
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                      {currentVal && (
+                        <div style={{ width: 100, height: 60, borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--color-border)', flexShrink: 0, backgroundColor: '#fff' }}>
+                          <img src={currentVal} alt="Banner Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                      )}
+
+                      <div style={{ flex: 1, display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input
+                          type="text"
+                          className="form-control"
+                          placeholder="Image URL or upload file below..."
+                          value={currentVal}
+                          onChange={(e) => handleChange(b.key, e.target.value)}
+                        />
+                        <label
+                          className="btn btn-outline"
+                          style={{ cursor: isUploading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
+                        >
+                          <Upload size={16} />
+                          <span>{isUploading ? 'Uploading...' : 'Upload Image'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            disabled={isUploading}
+                            onChange={(e) => handleFileUpload(b.key, e.target.files[0])}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -270,7 +367,7 @@ export default function SettingsPage() {
           {saved && (
             <div style={{ padding: '0.75rem 1rem', background: 'var(--color-success-bg)', border: '1px solid var(--color-success-bg)', borderRadius: 'var(--radius)', color: 'var(--color-success-text)', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
               <Check size={18} />
-              <span>Settings and Theme saved successfully!</span>
+              <span>Settings, Banners, and Theme saved successfully!</span>
             </div>
           )}
 

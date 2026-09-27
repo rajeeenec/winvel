@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useCart } from '../../context/CartContext';
+import { useSettings } from '../../context/SettingsContext';
 import './HomePage.css';
 
 export default function HomePage() {
   const [dbProducts, setDbProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { toggleWishlist, isInWishlist } = useCart();
+  const { get } = useSettings();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   // Load products from DB
@@ -94,13 +96,18 @@ export default function HomePage() {
     ? dbProducts.slice(0, 6)
     : fallbackProducts;
 
+  // Dynamic Admin Uploaded Banner Images
+  const hero1Img = get('theme', 'hero_banner_1', get('store', 'hero_banner_1', ''));
+  const hero2Img = get('theme', 'hero_banner_2', get('store', 'hero_banner_2', ''));
+  const promoImg = get('theme', 'promo_banner', get('store', 'promo_banner', ''));
+
   // Hero Slides
   const heroSlides = [
     {
       title: 'BASIC FIT. PREMIUM FEEL.',
       subtitle: 'Premium quality t-shirts for your everyday comfort and style.',
       badge: 'NEW COLLECTION',
-      image: '/images/hero_slide_1.png',
+      image: hero1Img || '/images/hero_slide_1.png',
       menLink: '/shop?category=1',
       womenLink: '/shop?category=2'
     },
@@ -108,7 +115,7 @@ export default function HomePage() {
       title: 'MINIMAL DESIGNS. MAXIMUM COMFORT.',
       subtitle: 'Elevate your daily wardrobe with our high-density plain tees.',
       badge: 'SUMMER BASICS',
-      image: '/images/category_basics.png',
+      image: hero2Img || '/images/category_basics.png',
       menLink: '/shop?category=4',
       womenLink: '/shop?category=4'
     }
@@ -373,7 +380,7 @@ export default function HomePage() {
             <Link to="/shop?sale=true" className="banner-cta-btn">SHOP THE SALE</Link>
           </div>
           <div className="banner-image-content">
-            <img src="/images/sale_banner_models.png" alt="Summer Sale" className="banner-img" />
+            <img src={promoImg || '/images/sale_banner_models.png'} alt="Summer Sale" className="banner-img" />
           </div>
         </div>
       </section>
