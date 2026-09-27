@@ -27,3 +27,35 @@ export async function createInventoryBatch(req, res, next) {
     next(err);
   }
 }
+
+export async function approveInventoryBatch(req, res, next) {
+  try {
+    const batch = await inventoryService.approveInventoryBatch(parseInt(req.params.id));
+    return success(res, batch);
+  } catch (err) {
+    next(err);
+  }
+}
+
+
+export async function getStockAvailability(req, res, next) {
+  try {
+    const availability = await inventoryService.getStockAvailability();
+    return success(res, availability);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateVariantStock(req, res, next) {
+  try {
+    const result = await inventoryService.updateVariantStock(
+      parseInt(req.params.variantId),
+      parseInt(req.body.stock_quantity ?? req.body.quantity)
+    );
+    return success(res, result);
+  } catch (err) {
+    next(err);
+  }
+}
+

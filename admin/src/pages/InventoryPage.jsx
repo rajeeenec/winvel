@@ -1,5 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
-import { Plus, Search, Boxes, Calendar, DollarSign, Eye, X, Check, Trash2, AlertCircle, Building2, Package, Tag, ArrowRight } from 'lucide-react';
+import {
+  Plus,
+  Search,
+  Boxes,
+  Calendar,
+  DollarSign,
+  Eye,
+  X,
+  Check,
+  Trash2,
+  AlertCircle,
+  Building2,
+  Package,
+  Tag,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+} from 'lucide-react';
 import api from '../services/api';
 
 function SearchableProductSelect({ products, value, onChange, autoFocusRef }) {
@@ -282,6 +299,23 @@ export default function InventoryPage() {
     }
   };
 
+  const handleApproveBatch = async (batchId, e) => {
+    if (e) e.stopPropagation();
+    if (!window.confirm('Are you sure you want to approve this inventory receipt batch? Once approved, stock quantities will be updated in Stock Availability.')) {
+      return;
+    }
+    try {
+      await api.put(`/inventory/${batchId}/approve`);
+      fetchInitialData();
+      if (selectedBatch && selectedBatch.id === batchId) {
+        const res = await api.get(`/inventory/${batchId}`);
+        setSelectedBatch(res.data || res);
+      }
+    } catch (err) {
+      alert('Failed to approve batch: ' + (err.message || 'Server error'));
+    }
+  };
+
   const handleViewBatchDetails = async (batchId) => {
     setDrawerLoading(true);
     setSelectedBatch(null);
@@ -309,18 +343,18 @@ export default function InventoryPage() {
   const totalInvestmentAmount = batches.reduce((sum, b) => sum + (b.total_amount || 0), 0);
 
   const batchFormTotalQty = formData.items.reduce((sum, it) => sum + (parseInt(it.quantity) || 0), 0);
-  const batchFormTotalVal = formData.items.reduce((sum, it) => sum + ((parseInt(it.quantity) || 0) * (parseFloat(it.unitCost) || 0)), 0);
+  const batchFormTotalVal = formData.items.reduce((sum, it) => sum + (parseInt(it.quantity) || 0) * (parseFloat(it.unitCost) || 0), 0);
 
   return (
     <div>
       <div className="page-header">
         <div>
           <h1 className="page-title">Inventory & Stock Batches</h1>
-          <p className="page-subtitle">Track incoming vendor shipments, batch items, costs, and warehouse stock receipts</p>
+          <p className="page-subtitle">Track incoming vendor shipments, approve batch items, and release stock to Stock Availability</p>
         </div>
         <button onClick={handleOpenAddModal} className="btn btn-black">
           <Plus size={16} />
-          <span>Add Inventory</span>
+          <span>Add Inventory Receipt</span>
         </button>
       </div>
 
@@ -401,7 +435,7 @@ export default function InventoryPage() {
             ) : filteredBatches.length === 0 ? (
               <tr>
                 <td colSpan="7" style={{ textAlign: 'center', padding: '3rem', color: 'var(--color-text-muted)' }}>
-                  No inventory batches recorded. Click "Add Inventory" to enter a new stock receipt.
+                  No inventory batches recorded. Click "Add Inventory Receipt" to enter a new stock receipt.
                 </td>
               </tr>
             ) : (
@@ -446,23 +480,45 @@ export default function InventoryPage() {
                     ₹{batch.total_amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </td>
                   <td>
-                    <span className="badge badge-active" style={{ textTransform: 'capitalize' }}>
-                      {batch.status}
-                    </span>
+                    {batch.status === 'approved' ? (
+                      <span className="badge badge-active" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', fontWeight: 700 }}>
+                        <CheckCircle2 size={13} />
+                        <span>Approved</span>
+                      </span>
+                    ) : (
+                      <span className="badge badge-pending" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#FEF3C7', color: '#B45309', border: '1px solid #FCD34D', fontWeight: 700 }}>
+                        <Clock size={13} />
+                        <span>Pending Approval</span>
+                      </span>
+                    )}
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewBatchDetails(batch.id);
-                      }}
-                      className="btn btn-secondary btn-sm"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-                    >
-                      <Eye size={14} />
-                      <span>View Details</span>
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      {batch.status !== 'approved' && (
+                        <button
+                          type="button"
+                          onClick={(e) => handleApproveBatch(batch.id, e)}
+                          className="btn btn-black btn-sm"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', background: '#059669', borderColor: '#059669', color: '#FFFFFF', padding: '0.35rem 0.65rem' }}
+                          title="Approve Batch & Release Stock"
+                        >
+                          <Check size={14} />
+                          <span>Approve</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewBatchDetails(batch.id);
+                        }}
+                        className="btn btn-secondary btn-sm"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                      >
+                        <Eye size={14} />
+                        <span>View Details</span>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -471,7 +527,7 @@ export default function InventoryPage() {
         </table>
       </div>
 
-      {/* Add Inventory Batch Modal (Expanded Width & Height) */}
+      {/* Add Inventory Batch Modal */}
       {showAddModal && (
         <div className="modal-overlay">
           <div
@@ -490,7 +546,7 @@ export default function InventoryPage() {
               <div>
                 <h2 className="modal-title" style={{ fontSize: '1.25rem' }}>Add Inventory Stock Receipt</h2>
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '2px' }}>
-                  Search product, enter batch details, and press <strong>Enter</strong> in the Unit Cost field to quickly add next row
+                  Entered receipts will be saved as <strong>Pending Approval</strong>. Approve batch to release items into Stock Availability.
                 </p>
               </div>
               <button onClick={() => setShowAddModal(false)} className="modal-close">
@@ -657,7 +713,7 @@ export default function InventoryPage() {
                 </button>
                 <button type="submit" className="btn btn-black" style={{ padding: '0.55rem 1.25rem' }}>
                   <Check size={16} />
-                  <span>Save Inventory Batch</span>
+                  <span>Save Receipt (Pending Approval)</span>
                 </button>
               </div>
             </form>
@@ -665,7 +721,7 @@ export default function InventoryPage() {
         </div>
       )}
 
-      {/* Side Drawer (Slide-Over Panel) for Full Batch Details */}
+      {/* Side Drawer for Full Batch Details */}
       {(selectedBatch || drawerLoading) && (
         <div
           style={{
@@ -676,7 +732,7 @@ export default function InventoryPage() {
             right: 0,
             zIndex: 1100,
             display: 'flex',
-            justifyContent: 'flex-end',
+            justify: 'flex-end',
             alignItems: 'stretch',
             background: 'rgba(0,0,0,0.4)',
             backdropFilter: 'blur(3px)',
@@ -722,6 +778,24 @@ export default function InventoryPage() {
                     <X size={22} />
                   </button>
                 </div>
+
+                {/* Batch Approval Banner if Pending */}
+                {selectedBatch.status !== 'approved' && (
+                  <div style={{ background: '#FFFBEB', border: '1px solid #FCD34D', padding: '0.85rem 1.15rem', borderRadius: '8px', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#B45309' }}>Pending Stock Release</div>
+                      <div style={{ fontSize: '0.78rem', color: '#92400E' }}>Approve this batch to release {selectedBatch.total_items} items into Stock Availability.</div>
+                    </div>
+                    <button
+                      onClick={() => handleApproveBatch(selectedBatch.id)}
+                      className="btn btn-black btn-sm"
+                      style={{ background: '#059669', borderColor: '#059669', color: '#FFFFFF', fontWeight: 700, padding: '0.45rem 0.95rem', flexShrink: 0 }}
+                    >
+                      <Check size={16} />
+                      <span>Approve Batch</span>
+                    </button>
+                  </div>
+                )}
 
                 {/* Vendor Overview Card */}
                 <div style={{ background: '#FAF6F0', border: '1px solid var(--color-border)', borderRadius: '8px', padding: '1rem', marginBottom: '1.25rem' }}>

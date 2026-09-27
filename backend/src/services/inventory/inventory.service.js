@@ -45,3 +45,25 @@ export async function createInventoryBatch(data) {
     notes: data.notes,
   });
 }
+
+export async function approveInventoryBatch(id) {
+  const batch = await inventoryRepo.findById(id);
+  if (!batch) throw error('Inventory batch not found', 404);
+  if (batch.status === 'approved') {
+    throw error('This inventory batch is already approved', 400);
+  }
+  return inventoryRepo.approveBatch(id);
+}
+
+export async function getStockAvailability() {
+  return inventoryRepo.getStockAvailability();
+}
+
+
+export async function updateVariantStock(variantId, quantity) {
+  if (quantity === undefined || isNaN(quantity)) {
+    throw error('Valid stock quantity is required', 400);
+  }
+  return inventoryRepo.updateVariantStock(variantId, quantity);
+}
+

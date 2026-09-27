@@ -1,4 +1,6 @@
 import { db } from '../../config/database.js';
+import { resolveFileUrl } from '../../utils/fileResolver.js';
+
 
 let tablesChecked = false;
 async function ensureInventoryTables() {
@@ -148,7 +150,7 @@ export async function createBatch({ vendorId, batchNumber, receivedDate, items, 
     total_items: totalItemsSum,
     total_amount: totalAmountSum,
     notes: notes || null,
-    status: 'received',
+    status: 'pending',
   });
 
   const batchItemsPayload = processedItems.map((item) => ({
@@ -162,3 +164,136 @@ export async function createBatch({ vendorId, batchNumber, receivedDate, items, 
 
   return findById(batchId);
 }
+
+export async function approveBatch(id) {
+  await ensureInventoryTables();
+  const batch = await findById(id);
+  if (!batch) return null;
+  if (batch.status === 'approved') return batch;
+
+  await db('inventory_batches')
+    .where('id', id)
+    .update({ status: 'approved', updated_at: db.fn.now() });
+
+  const items = await db('inventory_items').where('batch_id', id);
+
+  for (const item of items) {
+    if (!item.product_id) continue;
+
+    let variant = null;
+    if (item.sku) {
+      variant = await db('product_variants')
+        .where({ product_id: item.product_id, sku: item.sku })
+        .first();
+    }
+
+    if (!variant) {
+      variant = await db('product_variants')
+        .where({ product_id: item.product_id })
+        .first();
+    }
+
+    if (variant) {
+      await db('product_variants')
+        .where({ id: variant.id })
+        .increment('stock_quantity', item.quantity);
+    }
+  }
+
+  return findById(id);
+}
+
+export async function getStockAvailability() {
+  await ensureInventoryTables();
+
+  const products = await db('products as p')
+    .select(
+      'p.id',
+      'p.name',
+      'p.sku',
+      'p.base_price',
+      'p.status',
+      'p.created_at',
+      'c.name as category_name',
+      'c.id as category_id',
+      'pi.image_url'
+    )
+    .leftJoin('product_categories as pc', 'p.id', 'pc.product_id')
+    .leftJoin('categories as c', 'pc.category_id', 'c.id')
+    .leftJoin('product_images as pi', function () {
+      this.on('p.id', '=', 'pi.product_id').andOn('pi.is_primary', '=', db.raw('?', [true]));
+    })
+    .where('p.status', '!=', 'archived')
+    .orderBy('p.name', 'asc');
+
+  const result = [];
+
+  for (const prod of products) {
+    prod.base_price = parseFloat(prod.base_price) || 0;
+    prod.image_url = await resolveFileUrl(prod.image_url);
+
+    const variants = await db('product_variants as pv')
+      .select('pv.*', 's.name as size_name', 'col.name as color_name')
+      .leftJoin('sizes as s', 'pv.size_id', 's.id')
+      .leftJoin('colors as col', 'pv.color_id', 'col.id')
+      .where('pv.product_id', prod.id)
+      .orderBy(['s.sort_order', 'col.sort_order']);
+
+    let totalStock = 0;
+    let lowStockCount = 0;
+    let outOfStockCount = 0;
+
+    const formattedVariants = variants.map((v) => {
+      const stockQty = parseInt(v.stock_quantity) || 0;
+      const threshold = parseInt(v.low_stock_threshold) || 5;
+      totalStock += stockQty;
+
+      if (stockQty === 0) outOfStockCount++;
+      else if (stockQty <= threshold) lowStockCount++;
+
+      return {
+        id: v.id,
+        sku: v.sku || `SKU-${prod.id}-${v.size_name || v.id}`,
+        size: v.size_name || 'Free Size',
+        color: v.color_name || null,
+        price: parseFloat(v.price) || prod.base_price,
+        stock_quantity: stockQty,
+        low_stock_threshold: threshold,
+        is_low_stock: stockQty > 0 && stockQty <= threshold,
+        is_out_of_stock: stockQty === 0,
+      };
+    });
+
+    const [receivedAgg] = await db('inventory_items as ii')
+      .leftJoin('inventory_batches as ib', 'ii.batch_id', 'ib.id')
+      .where('ii.product_id', prod.id)
+      .where(function() {
+        this.where('ib.status', 'approved').orWhere('ib.status', 'received');
+      })
+      .sum('ii.quantity as total_received');
+
+    const totalReceived = parseInt(receivedAgg?.total_received) || 0;
+
+    result.push({
+      ...prod,
+      total_stock: totalStock,
+      total_received: totalReceived,
+      low_stock_count: lowStockCount,
+      out_of_stock_count: outOfStockCount,
+      total_stock_value: totalStock * prod.base_price,
+      variants: formattedVariants,
+    });
+  }
+
+  return result;
+}
+
+export async function updateVariantStock(variantId, quantity) {
+  const qty = Math.max(0, parseInt(quantity) || 0);
+  await db('product_variants')
+    .where('id', variantId)
+    .update({ stock_quantity: qty, updated_at: db.fn.now() });
+  return { success: true, variantId, stock_quantity: qty };
+}
+
+

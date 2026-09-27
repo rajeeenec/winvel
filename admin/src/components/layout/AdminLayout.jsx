@@ -7,6 +7,7 @@ import {
   Package,
   Tag,
   ShoppingBag,
+  ListFilter,
   Users,
   UserCheck,
   UserCog,
@@ -26,6 +27,8 @@ export default function AdminLayout() {
   const { appName } = useSettings();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const currentFullPath = location.pathname + location.search;
 
   const isOrderMgmtChildActive = ['/orders'].includes(location.pathname);
   const isStockMgmtChildActive = ['/inventory'].includes(location.pathname);
@@ -55,6 +58,7 @@ export default function AdminLayout() {
       setIsOpen: setIsOrderMgmtOpen,
       children: [
         { label: 'Orders', icon: ShoppingBag, path: '/orders' },
+        { label: 'Order Status', icon: ListFilter, path: '/orders?view=status' },
       ],
     },
     {
@@ -66,6 +70,7 @@ export default function AdminLayout() {
       setIsOpen: setIsStockMgmtOpen,
       children: [
         { label: 'Inventory', icon: InventoryIcon, path: '/inventory' },
+        { label: 'Stock Availability', icon: Package, path: '/stock-availability' },
       ],
     },
     {
@@ -123,7 +128,7 @@ export default function AdminLayout() {
             if (item.isParent) {
               const ParentIcon = item.icon;
               const childPaths = item.children.map((c) => c.path);
-              const isChildActive = childPaths.includes(location.pathname);
+              const isChildActive = childPaths.some((p) => p.split('?')[0] === location.pathname);
 
               return (
                 <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -157,22 +162,30 @@ export default function AdminLayout() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', paddingLeft: '1.25rem' }}>
                       {item.children.map((child) => {
                         const ChildIcon = child.icon;
+                        const isStatusView = location.search.includes('view=status');
+                        const isSubActive =
+                          child.path === '/orders?view=status'
+                            ? isStatusView
+                            : child.path === '/orders'
+                            ? location.pathname === '/orders' && !isStatusView
+                            : currentFullPath === child.path || location.pathname === child.path;
+
                         return (
                           <NavLink
                             key={child.path}
                             to={child.path}
-                            style={({ isActive }) => ({
+                            style={{
                               display: 'flex',
                               alignItems: 'center',
                               gap: '0.65rem',
                               padding: '0.45rem 0.75rem',
                               borderRadius: '5px',
                               fontSize: '0.82rem',
-                              fontWeight: isActive ? 600 : 400,
-                              color: isActive ? 'var(--color-text)' : '#57534E',
-                              backgroundColor: isActive ? 'var(--color-accent)' : 'transparent',
+                              fontWeight: isSubActive ? 600 : 400,
+                              color: isSubActive ? 'var(--color-text)' : '#57534E',
+                              backgroundColor: isSubActive ? 'var(--color-accent)' : 'transparent',
                               transition: 'var(--transition)',
-                            })}
+                            }}
                           >
                             <ChildIcon size={15} />
                             <span>{child.label}</span>
