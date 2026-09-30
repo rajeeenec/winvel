@@ -22,7 +22,14 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const bannerUrl = get('theme', 'register_banner', '/images/default-images/create_account.png');
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    if (url.startsWith('/uploads')) return `http://localhost:4000${url}`;
+    return url;
+  };
+
+  const bannerUrl = getImageUrl(get('theme', 'register_banner', get('theme', 'auth_banner', '/images/default-images/create_account.png')));
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

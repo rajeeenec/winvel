@@ -14,7 +14,14 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const bannerUrl = get('theme', 'auth_banner', '/images/default-images/login_image.jpg');
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    if (url.startsWith('/uploads')) return `http://localhost:4000${url}`;
+    return url;
+  };
+
+  const bannerUrl = getImageUrl(get('theme', 'auth_banner', '/images/default-images/login_image.jpg'));
 
   const handleSubmit = async (e) => {
     e.preventDefault();

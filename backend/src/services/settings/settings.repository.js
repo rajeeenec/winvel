@@ -58,9 +58,19 @@ export async function bulkUpdate(updates) {
   await db.transaction(async (trx) => {
     for (const { category, settingKey, settingValue } of updates) {
       const keyName = `${category}.${settingKey}`;
-      await trx('settings')
-        .where({ key_name: keyName })
-        .update({ value: settingValue });
+      const existing = await trx('settings').where({ key_name: keyName }).first();
+      if (existing) {
+        await trx('settings')
+          .where({ key_name: keyName })
+          .update({ value: settingValue });
+      } else {
+        const type = settingKey.includes('banner') || settingKey.includes('image') || settingKey.includes('logo') ? 'image' : 'string';
+        await trx('settings').insert({
+          key_name: keyName,
+          value: settingValue,
+          type,
+        });
+      }
     }
   });
 

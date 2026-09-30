@@ -7,21 +7,25 @@ import './HomePage.css';
 
 export default function HomePage() {
   const [dbProducts, setDbProducts] = useState([]);
+  const [dbBanners, setDbBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const { toggleWishlist, isInWishlist } = useCart();
   const { get } = useSettings();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Load products from DB
+  // Load products & dynamic banners from DB
   useEffect(() => {
     api.get('/products')
-      .then((data) => {
-        setDbProducts(data);
-      })
-      .catch((err) => {
-        console.error('Error fetching products:', err);
-      })
+      .then((data) => setDbProducts(data))
+      .catch((err) => console.error('Error fetching products:', err))
       .finally(() => setLoading(false));
+
+    api.get('/banners')
+      .then((data) => {
+        const list = data.data || data || [];
+        setDbBanners(Array.isArray(list) ? list : []);
+      })
+      .catch((err) => console.error('Error fetching banners:', err));
   }, []);
 
   // Static definition of products to enrich details (color swatches, badges, default display)
@@ -97,29 +101,51 @@ export default function HomePage() {
     : fallbackProducts;
 
   // Dynamic Admin Uploaded Banner Images
-  const hero1Img = get('theme', 'hero_banner_1', get('store', 'hero_banner_1', ''));
-  const hero2Img = get('theme', 'hero_banner_2', get('store', 'hero_banner_2', ''));
-  const promoImg = get('theme', 'promo_banner', get('store', 'promo_banner', ''));
+  const getImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+    if (url.startsWith('/uploads')) return `http://localhost:4000${url}`;
+    return url;
+  };
 
-  // Hero Slides
-  const heroSlides = [
-    {
-      title: 'BASIC FIT. PREMIUM FEEL.',
-      subtitle: 'Premium quality t-shirts for your everyday comfort and style.',
-      badge: 'NEW COLLECTION',
-      image: hero1Img || '/images/hero_slide_1.png',
-      menLink: '/shop?category=1',
-      womenLink: '/shop?category=2'
-    },
-    {
-      title: 'MINIMAL DESIGNS. MAXIMUM COMFORT.',
-      subtitle: 'Elevate your daily wardrobe with our high-density plain tees.',
-      badge: 'SUMMER BASICS',
-      image: hero2Img || '/images/category_basics.png',
-      menLink: '/shop?category=4',
-      womenLink: '/shop?category=4'
-    }
-  ];
+  const hero1Img = getImageUrl(get('theme', 'hero_banner_1', get('store', 'hero_banner_1', '')));
+  const hero2Img = getImageUrl(get('theme', 'hero_banner_2', get('store', 'hero_banner_2', '')));
+  const promoImg = getImageUrl(get('theme', 'promo_banner', get('store', 'promo_banner', '')));
+
+  // Hero Slides (Dynamic Banners from DB with fallbacks)
+  const heroSlides = dbBanners.length > 0
+    ? dbBanners.map((b) => ({
+        id: b.id,
+        title: b.title || 'BASIC FIT. PREMIUM FEEL.',
+        subtitle: b.subtitle || 'Premium quality t-shirts for your everyday comfort and style.',
+        badge: b.badge || 'NEW COLLECTION',
+        image: getImageUrl(b.image_url) || hero1Img || '/images/hero_slide_1.png',
+        buttonText: b.button_text || 'SHOP NOW',
+        buttonUrl: b.button_url || '/shop',
+      }))
+    : [
+        {
+          id: 'default-1',
+          title: 'BASIC FIT. PREMIUM FEEL.',
+          subtitle: 'Premium quality t-shirts for your everyday comfort and style.',
+          badge: 'NEW COLLECTION',
+          image: hero1Img || '/images/hero_slide_1.png',
+          buttonText: 'SHOP MEN',
+          buttonUrl: '/shop?category=1',
+        },
+        {
+          id: 'default-2',
+          title: 'MINIMAL DESIGNS. MAXIMUM COMFORT.',
+          subtitle: 'Elevate your daily wardrobe with our high-density plain tees.',
+          badge: 'SUMMER BASICS',
+          image: hero2Img || '/images/category_basics.png',
+          buttonText: 'SHOP WOMEN',
+          buttonUrl: '/shop?category=4',
+        }
+      ];
+
+  const safeSlideIndex = currentSlide % (heroSlides.length || 1);
+  const activeSlide = heroSlides[safeSlideIndex] || heroSlides[0];
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
@@ -133,19 +159,42 @@ export default function HomePage() {
     <div className="home-page-container">
       {/* HERO SECTION */}
       <section className="hero-slider">
-        <div className="hero-slide-wrapper">
+        <div
+          className="hero-slide-wrapper"
+          style={
+            activeSlide?.image
+              ? {
+                  backgroundImage: `linear-gradient(90deg, #f7f7f7 0%, rgba(247, 247, 247, 0.92) 38%, rgba(247, 247, 247, 0.1) 80%), url(${activeSlide.image})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center right',
+                }
+              : {}
+          }
+        >
           <div className="hero-slide-content">
             <div className="hero-text-side">
-              <span className="hero-pill-badge">{heroSlides[currentSlide].badge}</span>
-              <h1 className="hero-title" dangerouslySetInnerHTML={{ __html: heroSlides[currentSlide].title.replace('. ', '.<br />') }}></h1>
-              <p className="hero-description">{heroSlides[currentSlide].subtitle}</p>
+              {activeSlide?.badge && (
+                <span className="hero-pill-badge">{activeSlide.badge}</span>
+              )}
+              {activeSlide?.title && (
+                <h1
+                  className="hero-title"
+                  dangerouslySetInnerHTML={{ __html: activeSlide.title.replace('. ', '.<br />') }}
+                />
+              )}
+              {activeSlide?.subtitle && (
+                <p className="hero-description">{activeSlide.subtitle}</p>
+              )}
               <div className="hero-actions">
-                <Link to={heroSlides[currentSlide].menLink} className="hero-btn btn-dark">SHOP MEN</Link>
-                <Link to={heroSlides[currentSlide].womenLink} className="hero-btn btn-outline-dark">SHOP WOMEN</Link>
+                <Link to={activeSlide?.buttonUrl || '/shop'} className="hero-btn btn-dark">
+                  {activeSlide?.buttonText || 'SHOP NOW'}
+                </Link>
+                <Link to="/shop" className="hero-btn btn-outline-dark">
+                  EXPLORE ALL
+                </Link>
               </div>
             </div>
             <div className="hero-image-side">
-              <img src={heroSlides[currentSlide].image} alt="Winveel Collection" className="hero-image" />
               {/* Premium Stamp Badge Overlay */}
               <div className="premium-stamp-container">
                 <svg viewBox="0 0 100 100" width="120" height="120" className="premium-stamp">
@@ -163,24 +212,28 @@ export default function HomePage() {
         </div>
 
         {/* Slide Controls */}
-        <button className="slider-arrow arrow-left" onClick={prevSlide} aria-label="Previous Slide">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        </button>
-        <button className="slider-arrow arrow-right" onClick={nextSlide} aria-label="Next Slide">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </button>
+        {heroSlides.length > 1 && (
+          <>
+            <button className="slider-arrow arrow-left" onClick={prevSlide} aria-label="Previous Slide">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <button className="slider-arrow arrow-right" onClick={nextSlide} aria-label="Next Slide">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
 
-        {/* Slide Dots Indicator */}
-        <div className="slider-dots">
-          {heroSlides.map((_, idx) => (
-            <button
-              key={idx}
-              className={`slider-dot ${currentSlide === idx ? 'active' : ''}`}
-              onClick={() => setCurrentSlide(idx)}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
-        </div>
+            {/* Slide Dots Indicator */}
+            <div className="slider-dots">
+              {heroSlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  className={`slider-dot ${safeSlideIndex === idx ? 'active' : ''}`}
+                  onClick={() => setCurrentSlide(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </section>
 
       {/* CORE FEATURES STRIP */}

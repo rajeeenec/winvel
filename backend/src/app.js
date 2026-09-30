@@ -68,6 +68,7 @@ if (USE_MICROSERVICES) {
   app.use('/api/vendors', createServiceProxy(servicePorts.users, 'User & Vendor Service', '/api/vendors'));
 
   app.use('/api/settings', createServiceProxy(servicePorts.settings, 'Settings Service', '/api/settings'));
+  app.use('/api/banners', createServiceProxy(servicePorts.settings, 'Settings Service', '/api/banners'));
 } else {
   console.log('📦 API Gateway operating in Monolithic Mode');
   app.use(express.json());

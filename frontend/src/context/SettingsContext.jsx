@@ -11,9 +11,15 @@ export function SettingsProvider({ children }) {
 
   const loadSettings = useCallback(async () => {
     try {
-      const data = await api.get('/settings');
-      setSettings(data);
-      applyTheme({ ...DEFAULT_THEME, ...data.flat });
+      const res = await api.get('/settings');
+      const data = res.data || res;
+      if (data && (data.flat || data.grouped)) {
+        setSettings(data);
+        applyTheme({ ...DEFAULT_THEME, ...(data.flat || {}) });
+      } else {
+        const flat = { ...DEFAULT_THEME, ...DEFAULT_STORE };
+        setSettings({ grouped: flatToGrouped(flat), flat, list: [] });
+      }
     } catch {
       applyTheme(DEFAULT_THEME);
       const flat = { ...DEFAULT_THEME, ...DEFAULT_STORE };
@@ -28,14 +34,15 @@ export function SettingsProvider({ children }) {
   }, [loadSettings]);
 
   const updateSettings = async (updates) => {
-    const data = await api.put('/settings', { settings: updates });
+    const res = await api.put('/settings', { settings: updates });
+    const data = res.data || res;
     setSettings(data);
-    applyTheme({ ...DEFAULT_THEME, ...data.flat });
+    applyTheme({ ...DEFAULT_THEME, ...(data.flat || {}) });
     return data;
   };
 
   const get = (category, key, fallback = '') => {
-    return settings.grouped[category]?.[key] ?? fallback;
+    return settings.grouped?.[category]?.[key] ?? settings.flat?.[`${category}.${key}`] ?? fallback;
   };
 
   const appName = get('store', 'app_name', 'WINVEEL');

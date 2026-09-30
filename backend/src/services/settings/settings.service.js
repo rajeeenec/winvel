@@ -49,11 +49,6 @@ export async function updateSettings(updates) {
     if (!item.category || !item.settingKey) {
       throw error('Each update requires category and settingKey', 400);
     }
-
-    const existing = await settingsRepo.findByKey(item.category, item.settingKey);
-    if (!existing) {
-      throw error(`Setting not found: ${item.category}.${item.settingKey}`, 404);
-    }
   }
 
   const rows = await settingsRepo.bulkUpdate(
