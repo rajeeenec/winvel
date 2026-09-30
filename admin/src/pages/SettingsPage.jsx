@@ -181,6 +181,12 @@ export default function SettingsPage() {
       if (json && (json.url || json.data?.url)) {
         const uploadedUrl = json.url || json.data.url;
         handleBannerChange(bannerId, 'image_url', uploadedUrl);
+
+        // Auto-save updated image to DB
+        const currentBanner = dbBanners.find((b) => b.id === bannerId);
+        if (currentBanner) {
+          await api.put(`/banners/${bannerId}`, { ...currentBanner, image_url: uploadedUrl });
+        }
       } else {
         alert('Image upload failed: ' + (json.error || 'Unknown error'));
       }
