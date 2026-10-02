@@ -72,6 +72,7 @@ export function SettingsProvider({ children }) {
   const appName = get('store', 'app_name', 'WINVEEL');
   const tagline = get('store', 'tagline', 'WEAR YOUR VIBE');
   const currencySymbol = get('store', 'currency_symbol', '₹');
+  const logoUrl = get('store', 'logo_url', '/logo.png') || '/logo.png';
 
   return (
     <SettingsContext.Provider
@@ -84,6 +85,7 @@ export function SettingsProvider({ children }) {
         appName,
         tagline,
         currencySymbol,
+        logoUrl,
       }}
     >
       {children}

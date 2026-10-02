@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSettings } from '../context/SettingsContext';
+import defaultLogo from '../assets/logo.jpg';
 import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
@@ -11,7 +12,7 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const { login } = useAuth();
-  const { appName } = useSettings();
+  const { appName, logoUrl } = useSettings();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -33,8 +34,13 @@ export default function LoginPage() {
     <div className="login-container">
       <div className="login-card">
         <div className="login-brand">
-          <div style={{ display: 'inline-flex', padding: '0.75rem', borderRadius: 'var(--radius)', background: 'var(--color-bg)', color: 'var(--color-secondary)', marginBottom: '1rem' }}>
-            <ShieldCheck size={36} />
+          <div style={{ display: 'inline-flex', padding: '0.75rem', borderRadius: 'var(--radius)', background: 'var(--color-bg)', marginBottom: '1rem', height: '64px', minWidth: '80px', alignItems: 'center', justifyContent: 'center' }}>
+            <img
+              src={logoUrl && logoUrl !== '/logo.png' ? logoUrl : defaultLogo}
+              alt="WINVEEL Logo"
+              style={{ height: '48px', width: 'auto', maxWidth: '140px', objectFit: 'contain' }}
+              onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
+            />
           </div>
           <h1>{appName ? appName.toUpperCase() : 'WINVEEL'} ADMIN</h1>
           <p>Sign in to access your store control panel</p>

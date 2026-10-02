@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSettings } from '../../context/SettingsContext';
+import defaultLogo from '../../assets/logo.jpg';
+import fullLogo from '../../assets/full_logo.jpg';
 import {
+  Menu,
   LayoutDashboard,
   Package,
   Tag,
@@ -24,9 +27,11 @@ import {
 
 export default function AdminLayout() {
   const { user, logout } = useAuth();
-  const { appName } = useSettings();
+  const { appName, logoUrl } = useSettings();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const currentFullPath = location.pathname + location.search;
 
@@ -104,31 +109,83 @@ export default function AdminLayout() {
   return (
     <div className="admin-container">
       {/* Sidebar */}
-      <aside className="admin-sidebar">
-        <div style={{ padding: '1.25rem 1.15rem 1rem', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          {/* Hanger Icon matching screenshot */}
-          <div style={{ color: 'var(--color-text)', display: 'flex', alignItems: 'center' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2a3 3 0 0 0-3 3c0 .8.3 1.5.8 2L3 13h18l-6.8-6A3 3 0 0 0 12 2z" />
-              <path d="M3 13v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3" />
-            </svg>
-          </div>
-          <div>
-            <h2 style={{ fontFamily: 'var(--font)', fontSize: '1.15rem', fontWeight: 800, letterSpacing: '0.05em', color: 'var(--color-text)', lineHeight: 1.1 }}>
-              {appName ? appName.toUpperCase() : 'WINVEEL'}
-            </h2>
-            <p style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.12em', marginTop: '1px' }}>
-              Admin Control
-            </p>
-          </div>
+      <aside className={`admin-sidebar ${isSidebarCollapsed ? 'collapsed' : ''}`}>
+        {/* Sidebar Header / Logo area */}
+        <div
+          style={{
+            padding: isSidebarCollapsed ? '0.25rem' : '0.5rem 0.75rem',
+            borderBottom: '1px solid var(--color-border)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: isSidebarCollapsed ? '64px' : '85px',
+            overflow: 'hidden',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
+        >
+          {isSidebarCollapsed ? (
+            <img
+              src={logoUrl && logoUrl !== '/logo.png' ? logoUrl : defaultLogo}
+              alt="Logo Icon"
+              style={{ height: '46px', width: 'auto', maxWidth: '54px', objectFit: 'contain', cursor: 'pointer' }}
+              onClick={() => setIsSidebarCollapsed(false)}
+              onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
+              title={appName || 'WINVEEL'}
+            />
+          ) : (
+            <img
+              src={fullLogo}
+              alt={appName || 'WINVEEL Logo'}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                width: 'auto',
+                height: 'auto',
+                objectFit: 'contain',
+                display: 'block',
+              }}
+              onError={(e) => { e.target.onerror = null; e.target.src = defaultLogo; }}
+            />
+          )}
         </div>
 
-        <nav style={{ flex: 1, padding: '1rem 0.65rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', overflowY: 'auto' }}>
+        {/* Navigation Items */}
+        <nav style={{ flex: 1, padding: isSidebarCollapsed ? '1rem 0.35rem' : '1rem 0.65rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', overflowY: 'auto', overflowX: 'hidden' }}>
           {navItems.map((item) => {
             if (item.isParent) {
               const ParentIcon = item.icon;
               const childPaths = item.children.map((c) => c.path);
               const isChildActive = childPaths.some((p) => p.split('?')[0] === location.pathname);
+
+              if (isSidebarCollapsed) {
+                return (
+                  <div key={item.label} style={{ display: 'flex', justifyContent: 'center' }}>
+                    <button
+                      type="button"
+                      title={item.label}
+                      onClick={() => {
+                        setIsSidebarCollapsed(false);
+                        item.setIsOpen(true);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '6px',
+                        color: isChildActive ? 'var(--color-text)' : '#44403C',
+                        backgroundColor: isChildActive ? 'var(--color-sidebar-active)' : 'transparent',
+                        borderLeft: isChildActive ? '3px solid var(--color-sidebar-active-border)' : '3px solid transparent',
+                        transition: 'var(--transition)',
+                      }}
+                    >
+                      <ParentIcon size={18} />
+                    </button>
+                  </div>
+                );
+              }
 
               return (
                 <div key={item.label} style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
@@ -152,7 +209,7 @@ export default function AdminLayout() {
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <ParentIcon size={17} />
-                      <span>{item.label}</span>
+                      <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
                     </div>
                     {item.isOpen ? <ChevronDown size={15} color="var(--color-text-muted)" /> : <ChevronRight size={15} color="var(--color-text-muted)" />}
                   </button>
@@ -167,8 +224,8 @@ export default function AdminLayout() {
                           child.path === '/orders?view=status'
                             ? isStatusView
                             : child.path === '/orders'
-                            ? location.pathname === '/orders' && !isStatusView
-                            : currentFullPath === child.path || location.pathname === child.path;
+                              ? location.pathname === '/orders' && !isStatusView
+                              : currentFullPath === child.path || location.pathname === child.path;
 
                         return (
                           <NavLink
@@ -188,7 +245,7 @@ export default function AdminLayout() {
                             }}
                           >
                             <ChildIcon size={15} />
-                            <span>{child.label}</span>
+                            <span style={{ whiteSpace: 'nowrap' }}>{child.label}</span>
                           </NavLink>
                         );
                       })}
@@ -199,6 +256,33 @@ export default function AdminLayout() {
             }
 
             const Icon = item.icon;
+
+            if (isSidebarCollapsed) {
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  end={item.path === '/'}
+                  title={item.label}
+                  style={({ isActive }) => ({
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '40px',
+                    height: '40px',
+                    margin: '0 auto',
+                    borderRadius: '6px',
+                    color: isActive ? 'var(--color-text)' : '#44403C',
+                    backgroundColor: isActive ? 'var(--color-sidebar-active)' : 'transparent',
+                    borderLeft: isActive ? '3px solid var(--color-sidebar-active-border)' : '3px solid transparent',
+                    transition: 'var(--transition)',
+                  })}
+                >
+                  <Icon size={18} />
+                </NavLink>
+              );
+            }
+
             return (
               <NavLink
                 key={item.path}
@@ -219,57 +303,118 @@ export default function AdminLayout() {
                 })}
               >
                 <Icon size={17} />
-                <span>{item.label}</span>
+                <span style={{ whiteSpace: 'nowrap' }}>{item.label}</span>
               </NavLink>
             );
           })}
         </nav>
 
         {/* User Profile Card */}
-        <div style={{ padding: '0.75rem', borderTop: '1px solid var(--color-border)' }}>
-          <div style={{ padding: '0.65rem 0.75rem', borderRadius: '8px', background: '#FAF6F0', border: '1px solid var(--color-border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#E5DBCB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem', color: '#1A1918' }}>
-                {user?.name ? user.name[0] : user?.first_name ? user.first_name[0] : 'A'}
-              </div>
-              <div style={{ flex: 1, overflow: 'hidden' }}>
-                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#1A1918', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                  {user?.name || `${user?.first_name || 'Admin'} ${user?.last_name || ''}`}
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#78716C', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                  {user?.email || 'admin@winveel.com'}
-                </div>
-              </div>
+        {isSidebarCollapsed ? (
+          <div style={{ padding: '0.75rem 0.25rem', borderTop: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: '50%',
+                background: '#E5DBCB',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 'bold',
+                fontSize: '0.85rem',
+                color: '#1A1918',
+              }}
+              title={user?.name || user?.email || 'Admin User'}
+            >
+              {user?.name ? user.name[0] : user?.first_name ? user.first_name[0] : 'A'}
             </div>
             <button
               onClick={handleLogout}
-              className="btn"
               style={{
-                width: '100%',
-                marginTop: '0.5rem',
-                justify: 'center',
+                padding: '0.45rem',
+                borderRadius: '6px',
                 background: '#EFE7DA',
                 border: '1px solid #E2D7C5',
                 color: '#1A1918',
-                fontSize: '0.78rem',
-                padding: '0.35rem 0.65rem',
-                borderRadius: '5px',
-                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
               }}
+              title="Sign Out"
             >
-              <LogOut size={14} />
-              <span>Sign Out</span>
+              <LogOut size={16} />
             </button>
           </div>
-        </div>
+        ) : (
+          <div style={{ padding: '0.75rem', borderTop: '1px solid var(--color-border)' }}>
+            <div style={{ padding: '0.65rem 0.75rem', borderRadius: '8px', background: '#FAF6F0', border: '1px solid var(--color-border)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#E5DBCB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', fontSize: '0.8rem', color: '#1A1918' }}>
+                  {user?.name ? user.name[0] : user?.first_name ? user.first_name[0] : 'A'}
+                </div>
+                <div style={{ flex: 1, overflow: 'hidden' }}>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#1A1918', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                    {user?.name || `${user?.first_name || 'Admin'} ${user?.last_name || ''}`}
+                  </div>
+                  <div style={{ fontSize: '0.72rem', color: '#78716C', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                    {user?.email || 'admin@winveel.com'}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="btn"
+                style={{
+                  width: '100%',
+                  marginTop: '0.5rem',
+                  justifyContent: 'center',
+                  background: '#EFE7DA',
+                  border: '1px solid #E2D7C5',
+                  color: '#1A1918',
+                  fontSize: '0.78rem',
+                  padding: '0.35rem 0.65rem',
+                  borderRadius: '5px',
+                  fontWeight: 600,
+                }}
+              >
+                <LogOut size={14} />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        )}
       </aside>
 
       {/* Main Content Area */}
-      <div className="admin-main">
+      <div className={`admin-main ${isSidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
         <header className="admin-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#57534E', fontSize: '0.85rem' }}>
-            <ShieldCheck size={18} color="var(--color-text)" />
-            <span>Secure Admin Session Active</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button
+              type="button"
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0.4rem',
+                borderRadius: '6px',
+                border: '1px solid var(--color-border)',
+                backgroundColor: 'var(--color-surface)',
+                color: 'var(--color-text)',
+                cursor: 'pointer',
+                transition: 'var(--transition)',
+              }}
+              title={isSidebarCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            >
+              <Menu size={20} />
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#57534E', fontSize: '0.85rem' }}>
+              <ShieldCheck size={18} color="var(--color-text)" />
+              <span>Secure Admin Session Active</span>
+            </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
